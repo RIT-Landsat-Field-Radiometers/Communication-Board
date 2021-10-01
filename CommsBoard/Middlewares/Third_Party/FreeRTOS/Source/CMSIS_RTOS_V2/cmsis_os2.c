@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------------
- * Portions Copyright © 2019 STMicroelectronics International N.V. All rights reserved.
+ * Portions Copyright ï¿½ 2019 STMicroelectronics International N.V. All rights reserved.
  * Copyright (c) 2013-2019 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -108,6 +108,7 @@ static osKernelState_t KernelState = osKernelInactive;
   definition configHEAP_5_REGIONS as parameter. Overriding configHEAP_5_REGIONS
   is possible by defining it globally or in FreeRTOSConfig.h.
 */
+#define USE_FREERTOS_HEAP_5
 #if defined(USE_FREERTOS_HEAP_5)
 #if (configAPPLICATION_ALLOCATED_HEAP == 0)
   /*
