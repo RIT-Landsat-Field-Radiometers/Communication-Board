@@ -36,7 +36,7 @@ void MX_SDMMC1_SD_Init(void)
   hsd1.Init.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_ENABLE;
   hsd1.Init.BusWide = SDMMC_BUS_WIDE_4B;
   hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_ENABLE;
-  hsd1.Init.ClockDiv = 3;
+  hsd1.Init.ClockDiv = 5;
   hsd1.Init.Transceiver = SDMMC_TRANSCEIVER_DISABLE;
 
 }
