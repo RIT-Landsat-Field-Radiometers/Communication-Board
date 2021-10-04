@@ -37,8 +37,11 @@
 
 #include "bsp/DS28CM00ID/DS28CM00ID.h"
 #include "bsp/LEDs/LEDManager.h"
-#include "Logging/UARTLogHandler.h"
 #include "bsp/UART/UARTManager.h"
+#include "Logging/Logger.h"
+#include "CANOpenNode/OD.h"
+#include "301/CO_ODinterface.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,12 +62,10 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 extern DS28CM00_ID id1;
-LEDManager leds(
-{ .port = GPIOD, .pin = LED_R_Pin },
-{ .port = GPIOD, .pin = LED_G_Pin },
-{ .port = GPIOD, .pin = LED_B_Pin });
-UARTManager uartMan(&huart1);
-UARTLogHandler *handler(UARTLogHandler::configure(&uartMan, LOG_LEVEL_ALL));
+extern LEDManager leds;
+extern UARTManager uartMan;
+extern Logger Log;
+
 
 
 /* USER CODE END Variables */
@@ -74,6 +75,11 @@ osThreadAttr_t defaultTask_attributes;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
+
+extern void canopen_start(void);
+extern void startLSS(void *argument);
+
+
 
 /* USER CODE END FunctionPrototypes */
 
@@ -148,6 +154,8 @@ void MX_FREERTOS_Init(void)
 
 	/* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
+	osThreadNew(startLSS, nullptr, nullptr);
+
 	/* USER CODE END RTOS_THREADS */
 
 	/* USER CODE BEGIN RTOS_EVENTS */
@@ -156,6 +164,7 @@ void MX_FREERTOS_Init(void)
 	uartMan.start();
 	leds.start(false);
 	Log.info("Application Started");
+	canopen_start();
 	/* USER CODE END RTOS_EVENTS */
 
 }
@@ -167,6 +176,57 @@ void MX_FREERTOS_Init(void)
  * @retval None
  */
 /* USER CODE END Header_StartDefaultTask */
+typedef struct
+{
+	float t1channels[4];
+	float t2channels[4];
+}SensorReadings_t;
+
+typedef struct
+{
+	float humidity;
+	float pressure;
+	float wind_direction;
+	float wind_speed;
+	int8_t rain_detected;
+}EnviromentalReading_t;
+
+void readSensor(SensorReadings_t * out, int which)
+{
+	OD_entry_t * sensorEntry;
+	if(which == 1)
+	{
+		sensorEntry = OD_ENTRY_H6000_sensor1Data;
+	}
+	else
+	{
+		sensorEntry = OD_ENTRY_H6001_sensor2Data;
+	}
+
+	for(int channel = 0; channel < 8; channel++)
+	{
+		if(channel < 4)
+		{
+			OD_get_f32(sensorEntry, channel+1, &out->t1channels[channel], true);
+		}
+		else
+		{
+			OD_get_f32(sensorEntry, channel+1, &out->t2channels[channel-4], true);
+		}
+	}
+}
+
+void readEnviromental(EnviromentalReading_t * out)
+{
+	OD_entry_t * BMEEntry = OD_ENTRY_H6003_BMEData;
+	OD_get_f32(BMEEntry, 1, &out->humidity, true);
+	OD_get_f32(BMEEntry, 2, &out->pressure, true);
+	OD_get_f32(BMEEntry, 4, &out->wind_direction, true);
+	OD_get_f32(BMEEntry, 3, &out->wind_speed, true);
+	OD_get_i8(BMEEntry, 5, &out->rain_detected, true);
+}
+
+
 void StartDefaultTask(void *argument)
 {
 	/* USER CODE BEGIN StartDefaultTask */
@@ -181,11 +241,58 @@ void StartDefaultTask(void *argument)
 	HAL_ADC_Start_DMA(&hadc1, samples, 2);
 
 
-	leds.slowFlash(WHITE);
+//	leds.slowFlash(WHITE);
+
+	SensorReadings_t sensors[2];
+	EnviromentalReading_t enviromental;
+
+
+
 
 	/* Infinite loop */
 	for (;;)
 	{
+		osDelay(1000);
+		// get the data from the CANOpen object dictionary
+		readSensor(&sensors[0], 1);
+		readSensor(&sensors[1], 2);
+		readEnviromental(&enviromental);
+
+		//	@formatter:off
+		privLog.info("\r\n"
+				"Sensor1:\r\n"
+				"\tT1CA: %8.8f\r\n"
+				"\tT1CB: %8.8f\r\n"
+				"\tT1CC: %8.8f\r\n"
+				"\tT1CD: %8.8f\r\n"
+				"\tT2CA: %8.8f\r\n"
+				"\tT2CB: %8.8f\r\n"
+				"\tT2CC: %8.8f\r\n"
+				"\tT2CD: %8.8f\r\n"
+				"Sensor2:\r\n"
+				"\tT1CA: %8.8f\r\n"
+				"\tT1CB: %8.8f\r\n"
+				"\tT1CC: %8.8f\r\n"
+				"\tT1CD: %8.8f\r\n"
+				"\tT2CA: %8.8f\r\n"
+				"\tT2CB: %8.8f\r\n"
+				"\tT2CC: %8.8f\r\n"
+				"\tT2CD: %8.8f\r\n"
+				"Environmental:\r\n"
+				"\tHumidity: %8.8f\r\n"
+				"\tPressure: %8.8f\r\n"
+				"\tWind Speed: %8.8f\r\n"
+				"\tWind Direction: %8.8f\r\n"
+				"\tRain: %s",
+				sensors[0].t1channels[0], sensors[0].t1channels[1], sensors[0].t1channels[2], sensors[0].t1channels[3],
+				sensors[0].t2channels[0], sensors[0].t2channels[1], sensors[0].t2channels[2], sensors[0].t2channels[3],
+
+				sensors[1].t1channels[0], sensors[1].t1channels[1], sensors[1].t1channels[2], sensors[1].t1channels[3],
+				sensors[1].t2channels[0], sensors[1].t2channels[1], sensors[1].t2channels[2], sensors[1].t2channels[3],
+
+				enviromental.humidity, enviromental.pressure, enviromental.wind_speed, enviromental.wind_direction, enviromental.rain_detected != 0 ? "Yes" : "No");
+		//	@formatter:on
+
 		uint16_t raw = samples[0] & 0xfff;
 		double voltage = (raw / (4096.0)) * 3.3 * 11.0;//38.4115; // TODO: Why is this off?????
 
@@ -201,7 +308,6 @@ void StartDefaultTask(void *argument)
 		{
 			privLog.warn("LOW BATTERY, %4.4f", voltage);
 		}
-		osDelay(1000);
 	}
 	/* USER CODE END StartDefaultTask */
 }

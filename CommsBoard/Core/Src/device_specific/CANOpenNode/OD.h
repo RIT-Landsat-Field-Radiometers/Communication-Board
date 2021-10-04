@@ -11,18 +11,18 @@
 
     File info:
         File Names:   OD.h; OD.c
-        Project File: CommsTester.xdd
+        Project File: comms.xdd
         File Version: 1
 
-        Created:      8/31/2021 1:33:29 PM
+        Created:      9/30/2021 2:21:42 PM
         Created By:   
-        Modified:     9/3/2021 10:24:03 AM
+        Modified:     10/1/2021 2:29:38 PM
         Modified By:  
 
     Device Info:
         Vendor Name:  
         Vendor ID:    
-        Product Name: CommsTester
+        Product Name: New Product
         Product ID:   
 
         Description:  
@@ -30,6 +30,9 @@
 
 #ifndef OD_H
 #define OD_H
+
+
+#include "301/CO_ODinterface.h"
 /*******************************************************************************
     Counters of OD objects
 *******************************************************************************/
@@ -38,15 +41,16 @@
 #define OD_CNT_SYNC 1
 #define OD_CNT_SYNC_PROD 1
 #define OD_CNT_EM_PROD 1
+#define OD_CNT_HB_CONS 1
 #define OD_CNT_HB_PROD 1
-#define OD_CNT_SDO_SRV 1
-#define OD_CNT_RPDO 2
+#define OD_CNT_RPDO 11
 
 
 /*******************************************************************************
     Sizes of OD arrays
 *******************************************************************************/
-#define OD_CNT_ARR_1F82 127
+#define OD_CNT_ARR_1003 16
+#define OD_CNT_ARR_1016 8
 
 
 /*******************************************************************************
@@ -59,24 +63,17 @@ typedef struct {
     uint32_t x1007_synchronousWindowLength;
     uint32_t x1014_COB_ID_EMCY;
     uint16_t x1015_inhibitTimeEMCY;
+    uint8_t x1016_consumerHeartbeatTime_sub0;
+    uint32_t x1016_consumerHeartbeatTime[OD_CNT_ARR_1016];
     uint16_t x1017_producerHeartbeatTime;
     struct {
         uint8_t highestSub_indexSupported;
         uint32_t vendor_ID;
         uint32_t productCode;
         uint32_t revisionNumber;
-        uint64_t serialNumber;
+        uint32_t serialNumber;
     } x1018_identity;
     uint8_t x1019_synchronousCounterOverflowValue;
-} OD_PERSIST_COMM_t;
-
-typedef struct {
-    uint8_t x1001_errorRegister;
-    struct {
-        uint8_t highestSub_indexSupported;
-        uint32_t COB_IDClientToServerRx;
-        uint32_t COB_IDServerToClientTx;
-    } x1200_SDOServerParameter;
     struct {
         uint8_t maxSub_index;
         uint32_t COB_IDUsedByRPDO;
@@ -88,14 +85,138 @@ typedef struct {
         uint8_t transmissionType;
     } x1401_RPDOCommunicationParameter;
     struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x1402_RPDOCommunicationParameter;
+    struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x1403_RPDOCommunicationParameter;
+    struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x1404_RPDOCommunicationParameter;
+    struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x1405_RPDOCommunicationParameter;
+    struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x1406_RPDOCommunicationParameter;
+    struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x1407_RPDOCommunicationParameter;
+    struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x1408_RPDOCommunicationParameter;
+    struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x1409_RPDOCommunicationParameter;
+    struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x140A_RPDOCommunicationParameter;
+    struct {
         uint8_t numberOfMappedObjects;
         uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
     } x1600_RPDOMappingParameter;
     struct {
         uint8_t numberOfMappedObjects;
         uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
     } x1601_RPDOMappingParameter;
-    uint8_t x1F82_requestNMT_sub0;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
+    } x1602_RPDOMappingParameter;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
+    } x1603_RPDOMappingParameter;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
+    } x1604_RPDOMappingParameter;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
+    } x1605_RPDOMappingParameter;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
+    } x1606_RPDOMappingParameter;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
+    } x1607_RPDOMappingParameter;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
+    } x1608_RPDOMappingParameter;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
+    } x1609_RPDOMappingParameter;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+    } x160A_RPDOMappingParameter;
+} OD_PERSIST_COMM_t;
+
+typedef struct {
+    uint8_t x1001_errorRegister;
+    struct {
+        uint8_t highestSub_indexSupported;
+        float32_t thermopile1_ChannelA;
+        float32_t thermopile1_ChannelB;
+        float32_t thermopile1_ChannelC;
+        float32_t thermopile1_ChannelD;
+        float32_t thermopile2_ChannelA;
+        float32_t thermopile2_ChannelB;
+        float32_t thermopile2_ChannelC;
+        float32_t thermopile2_ChannelD;
+    } x6000_sensor1Data;
+    struct {
+        uint8_t highestSub_indexSupported;
+        float32_t thermopile1_ChannelA;
+        float32_t thermopile1_ChannelB;
+        float32_t thermopile1_ChannelC;
+        float32_t thermopile1_ChannelD;
+        float32_t thermopile2_ChannelA;
+        float32_t thermopile2_ChannelB;
+        float32_t thermopile2_ChannelC;
+        float32_t thermopile2_ChannelD;
+    } x6001_sensor2Data;
+    struct {
+        uint8_t highestSub_indexSupported;
+        float32_t humidity;
+        float32_t pressure;
+        float32_t windSpeed;
+        float32_t windDirection;
+        bool_t rainDetection;
+    } x6003_BMEData;
 } OD_RAM_t;
 
 #ifndef OD_ATTR_PERSIST_COMM
@@ -119,24 +240,41 @@ extern OD_ATTR_OD OD_t *OD;
 *******************************************************************************/
 #define OD_ENTRY_H1000 &OD->list[0]
 #define OD_ENTRY_H1001 &OD->list[1]
-#define OD_ENTRY_H1005 &OD->list[2]
-#define OD_ENTRY_H1006 &OD->list[3]
-#define OD_ENTRY_H1007 &OD->list[4]
-#define OD_ENTRY_H1014 &OD->list[5]
-#define OD_ENTRY_H1015 &OD->list[6]
-#define OD_ENTRY_H1017 &OD->list[7]
-#define OD_ENTRY_H1018 &OD->list[8]
-#define OD_ENTRY_H1019 &OD->list[9]
-#define OD_ENTRY_H1200 &OD->list[10]
-#define OD_ENTRY_H1400 &OD->list[11]
-#define OD_ENTRY_H1401 &OD->list[12]
-#define OD_ENTRY_H1600 &OD->list[13]
-#define OD_ENTRY_H1601 &OD->list[14]
-#define OD_ENTRY_H1F80 &OD->list[15]
-#define OD_ENTRY_H1F82 &OD->list[16]
-#define OD_ENTRY_H2000 &OD->list[17]
-#define OD_ENTRY_H2001 &OD->list[18]
-#define OD_ENTRY_H2002 &OD->list[19]
+#define OD_ENTRY_H1003 &OD->list[2]
+#define OD_ENTRY_H1005 &OD->list[3]
+#define OD_ENTRY_H1006 &OD->list[4]
+#define OD_ENTRY_H1007 &OD->list[5]
+#define OD_ENTRY_H1014 &OD->list[6]
+#define OD_ENTRY_H1015 &OD->list[7]
+#define OD_ENTRY_H1016 &OD->list[8]
+#define OD_ENTRY_H1017 &OD->list[9]
+#define OD_ENTRY_H1018 &OD->list[10]
+#define OD_ENTRY_H1019 &OD->list[11]
+#define OD_ENTRY_H1400 &OD->list[12]
+#define OD_ENTRY_H1401 &OD->list[13]
+#define OD_ENTRY_H1402 &OD->list[14]
+#define OD_ENTRY_H1403 &OD->list[15]
+#define OD_ENTRY_H1404 &OD->list[16]
+#define OD_ENTRY_H1405 &OD->list[17]
+#define OD_ENTRY_H1406 &OD->list[18]
+#define OD_ENTRY_H1407 &OD->list[19]
+#define OD_ENTRY_H1408 &OD->list[20]
+#define OD_ENTRY_H1409 &OD->list[21]
+#define OD_ENTRY_H140A &OD->list[22]
+#define OD_ENTRY_H1600 &OD->list[23]
+#define OD_ENTRY_H1601 &OD->list[24]
+#define OD_ENTRY_H1602 &OD->list[25]
+#define OD_ENTRY_H1603 &OD->list[26]
+#define OD_ENTRY_H1604 &OD->list[27]
+#define OD_ENTRY_H1605 &OD->list[28]
+#define OD_ENTRY_H1606 &OD->list[29]
+#define OD_ENTRY_H1607 &OD->list[30]
+#define OD_ENTRY_H1608 &OD->list[31]
+#define OD_ENTRY_H1609 &OD->list[32]
+#define OD_ENTRY_H160A &OD->list[33]
+#define OD_ENTRY_H6000 &OD->list[34]
+#define OD_ENTRY_H6001 &OD->list[35]
+#define OD_ENTRY_H6003 &OD->list[36]
 
 
 /*******************************************************************************
@@ -144,24 +282,41 @@ extern OD_ATTR_OD OD_t *OD;
 *******************************************************************************/
 #define OD_ENTRY_H1000_deviceType &OD->list[0]
 #define OD_ENTRY_H1001_errorRegister &OD->list[1]
-#define OD_ENTRY_H1005_COB_ID_SYNCMessage &OD->list[2]
-#define OD_ENTRY_H1006_communicationCyclePeriod &OD->list[3]
-#define OD_ENTRY_H1007_synchronousWindowLength &OD->list[4]
-#define OD_ENTRY_H1014_COB_ID_EMCY &OD->list[5]
-#define OD_ENTRY_H1015_inhibitTimeEMCY &OD->list[6]
-#define OD_ENTRY_H1017_producerHeartbeatTime &OD->list[7]
-#define OD_ENTRY_H1018_identity &OD->list[8]
-#define OD_ENTRY_H1019_synchronousCounterOverflowValue &OD->list[9]
-#define OD_ENTRY_H1200_SDOServerParameter &OD->list[10]
-#define OD_ENTRY_H1400_RPDOCommunicationParameter &OD->list[11]
-#define OD_ENTRY_H1401_RPDOCommunicationParameter &OD->list[12]
-#define OD_ENTRY_H1600_RPDOMappingParameter &OD->list[13]
-#define OD_ENTRY_H1601_RPDOMappingParameter &OD->list[14]
-#define OD_ENTRY_H1F80_NMTStartup &OD->list[15]
-#define OD_ENTRY_H1F82_requestNMT &OD->list[16]
-#define OD_ENTRY_H2000_serialNumber &OD->list[17]
-#define OD_ENTRY_H2001_lowPrecisionTemperature &OD->list[18]
-#define OD_ENTRY_H2002_humidity &OD->list[19]
+#define OD_ENTRY_H1003_pre_definedErrorField &OD->list[2]
+#define OD_ENTRY_H1005_COB_ID_SYNCMessage &OD->list[3]
+#define OD_ENTRY_H1006_communicationCyclePeriod &OD->list[4]
+#define OD_ENTRY_H1007_synchronousWindowLength &OD->list[5]
+#define OD_ENTRY_H1014_COB_ID_EMCY &OD->list[6]
+#define OD_ENTRY_H1015_inhibitTimeEMCY &OD->list[7]
+#define OD_ENTRY_H1016_consumerHeartbeatTime &OD->list[8]
+#define OD_ENTRY_H1017_producerHeartbeatTime &OD->list[9]
+#define OD_ENTRY_H1018_identity &OD->list[10]
+#define OD_ENTRY_H1019_synchronousCounterOverflowValue &OD->list[11]
+#define OD_ENTRY_H1400_RPDOCommunicationParameter &OD->list[12]
+#define OD_ENTRY_H1401_RPDOCommunicationParameter &OD->list[13]
+#define OD_ENTRY_H1402_RPDOCommunicationParameter &OD->list[14]
+#define OD_ENTRY_H1403_RPDOCommunicationParameter &OD->list[15]
+#define OD_ENTRY_H1404_RPDOCommunicationParameter &OD->list[16]
+#define OD_ENTRY_H1405_RPDOCommunicationParameter &OD->list[17]
+#define OD_ENTRY_H1406_RPDOCommunicationParameter &OD->list[18]
+#define OD_ENTRY_H1407_RPDOCommunicationParameter &OD->list[19]
+#define OD_ENTRY_H1408_RPDOCommunicationParameter &OD->list[20]
+#define OD_ENTRY_H1409_RPDOCommunicationParameter &OD->list[21]
+#define OD_ENTRY_H140A_RPDOCommunicationParameter &OD->list[22]
+#define OD_ENTRY_H1600_RPDOMappingParameter &OD->list[23]
+#define OD_ENTRY_H1601_RPDOMappingParameter &OD->list[24]
+#define OD_ENTRY_H1602_RPDOMappingParameter &OD->list[25]
+#define OD_ENTRY_H1603_RPDOMappingParameter &OD->list[26]
+#define OD_ENTRY_H1604_RPDOMappingParameter &OD->list[27]
+#define OD_ENTRY_H1605_RPDOMappingParameter &OD->list[28]
+#define OD_ENTRY_H1606_RPDOMappingParameter &OD->list[29]
+#define OD_ENTRY_H1607_RPDOMappingParameter &OD->list[30]
+#define OD_ENTRY_H1608_RPDOMappingParameter &OD->list[31]
+#define OD_ENTRY_H1609_RPDOMappingParameter &OD->list[32]
+#define OD_ENTRY_H160A_RPDOMappingParameter &OD->list[33]
+#define OD_ENTRY_H6000_sensor1Data &OD->list[34]
+#define OD_ENTRY_H6001_sensor2Data &OD->list[35]
+#define OD_ENTRY_H6003_BMEData &OD->list[36]
 
 
 /*******************************************************************************
@@ -171,7 +326,7 @@ extern OD_ATTR_OD OD_t *OD;
 #define OD_INIT_CONFIG(config) {\
     (config).CNT_NMT = OD_CNT_NMT;\
     (config).ENTRY_H1017 = OD_ENTRY_H1017;\
-    (config).CNT_HB_CONS = 0;\
+    (config).CNT_HB_CONS = OD_CNT_HB_CONS;\
     (config).CNT_ARR_1016 = OD_CNT_ARR_1016;\
     (config).ENTRY_H1016 = OD_ENTRY_H1016;\
     (config).CNT_EM = OD_CNT_EM;\
@@ -180,7 +335,7 @@ extern OD_ATTR_OD OD_t *OD;
     (config).ENTRY_H1015 = OD_ENTRY_H1015;\
     (config).CNT_ARR_1003 = OD_CNT_ARR_1003;\
     (config).ENTRY_H1003 = OD_ENTRY_H1003;\
-    (config).CNT_SDO_SRV = OD_CNT_SDO_SRV;\
+    (config).CNT_SDO_SRV = 0;\
     (config).ENTRY_H1200 = OD_ENTRY_H1200;\
     (config).CNT_SDO_CLI = 0;\
     (config).ENTRY_H1280 = OD_ENTRY_H1280;\
