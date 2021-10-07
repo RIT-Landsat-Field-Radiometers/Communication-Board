@@ -16,7 +16,7 @@
 
         Created:      9/30/2021 2:21:42 PM
         Created By:   
-        Modified:     10/1/2021 2:29:38 PM
+        Modified:     10/5/2021 2:45:52 PM
         Modified By:  
 
     Device Info:
@@ -30,8 +30,6 @@
 
 #ifndef OD_H
 #define OD_H
-
-
 #include "301/CO_ODinterface.h"
 /*******************************************************************************
     Counters of OD objects
@@ -215,7 +213,7 @@ typedef struct {
         float32_t pressure;
         float32_t windSpeed;
         float32_t windDirection;
-        bool_t rainDetection;
+        uint8_t rainDetection;
     } x6003_BMEData;
 } OD_RAM_t;
 

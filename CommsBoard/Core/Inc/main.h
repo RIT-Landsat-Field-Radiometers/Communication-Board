@@ -67,6 +67,7 @@ void Error_Handler(void);
 #define MDM_RST_GPIO_Port GPIOA
 #define MDM_RING_Pin GPIO_PIN_6
 #define MDM_RING_GPIO_Port GPIOA
+#define MDM_RING_EXTI_IRQn EXTI9_5_IRQn
 #define MDM_STAT_Pin GPIO_PIN_7
 #define MDM_STAT_GPIO_Port GPIOA
 #define TP9_Pin GPIO_PIN_4
@@ -98,8 +99,18 @@ void Error_Handler(void);
 #define TST_BTN_Pin GPIO_PIN_15
 #define TST_BTN_GPIO_Port GPIOD
 #define TST_BTN_EXTI_IRQn EXTI15_10_IRQn
+#define CAN_MODE_Pin GPIO_PIN_8
+#define CAN_MODE_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
+#define MDM_TX_GPIO_Port GPIOA
+#define MDM_TX_Pin GPIO_PIN_2
+#define MDM_RX_GPIO_Port GPIOA
+#define MDM_RX_Pin GPIO_PIN_3
 
+#define MDM_CTS_GPIO_Port (0)
+#define MDM_CTS_Pin (0)
+#define MDM_RTS_GPIO_Port (0)
+#define MDM_RTS_Pin (0)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

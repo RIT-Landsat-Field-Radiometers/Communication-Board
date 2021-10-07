@@ -128,7 +128,7 @@ int main(void)
 
 	/* USER CODE BEGIN 2 */
 
-//  HAL_GPIO_WritePin(GPIOE, Boron_RST_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(CAN_MODE_GPIO_Port, CAN_MODE_Pin, GPIO_PIN_RESET);
 	/* USER CODE END 2 */
 
 	/* Init scheduler */

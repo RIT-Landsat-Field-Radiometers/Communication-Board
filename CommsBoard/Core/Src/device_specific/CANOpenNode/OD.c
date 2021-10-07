@@ -144,7 +144,7 @@ OD_ATTR_PERSIST_COMM OD_PERSIST_COMM_t OD_PERSIST_COMM = {
     },
     .x160A_RPDOMappingParameter = {
         .numberOfMappedObjects = 0x01,
-        .mappedObject_1 = 0x60030501
+        .mappedObject_1 = 0x60030508
     }
 };
 
@@ -178,7 +178,7 @@ OD_ATTR_RAM OD_RAM_t OD_RAM = {
         .pressure = 0,
         .windSpeed = 0,
         .windDirection = 0,
-        .rainDetection = false
+        .rainDetection = 0x00
     }
 };
 
