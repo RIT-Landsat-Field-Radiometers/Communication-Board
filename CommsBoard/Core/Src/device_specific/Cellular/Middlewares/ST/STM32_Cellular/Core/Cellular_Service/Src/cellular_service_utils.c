@@ -52,7 +52,7 @@
   TRACE_PRINT_FORCE(DBG_CHAN_CELLULAR_SERVICE, DBL_LVL_P0, "" format "", ## args)
 #else
 #include <stdio.h>
-#define PRINT_FORCE(format, args...)                (void)printf(format, ## args);
+#define PRINT_FORCE(format, args...)                (0);//(void)printf(format, ## args);
 #endif  /* (USE_PRINTF == 1) */
 
 /* SIM slot polling period */

@@ -182,26 +182,26 @@ sysctrl_status_t SysCtrl_BG96_power_on(sysctrl_device_type_t type)
    *  a manual reset).
    * Set PWR_EN to 0 at least 650ms
    */
-  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
-  SysCtrl_delay(700U);
   HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
+  SysCtrl_delay(700U);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
   SysCtrl_delay(1000U);
 
   /* Power ON sequence */
   /* Set PWR_EN to 1 (initial state) */
-  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
   SysCtrl_delay(50U);
 
   /* Set PWR_EN to 0 during at least 30ms as defined by Quectel */
-  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
   SysCtrl_delay(30U);
 
   /* Set PWR_EN to 1 during at least 500ms */
-  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
   SysCtrl_delay(510U);
 
   /* Set PWR_EN to 0 */
-  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
 
   /* wait for Modem to complete its booting procedure */
   PRINT_INFO("Waiting %d millisec for modem running...", BG96_BOOT_TIME)
@@ -233,11 +233,11 @@ sysctrl_status_t SysCtrl_BG96_power_off(sysctrl_device_type_t type)
   */
 
   /* wait at least 650ms */
-  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
-  SysCtrl_delay(700U);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
+  SysCtrl_delay(1000U);
 
   /* wait at least 2s but, in practice, it can exceed 4s or 5s */
-  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
   SysCtrl_delay(5000U);
 
   return (retval);
@@ -330,7 +330,7 @@ static sysctrl_status_t SysCtrl_BG96_setup(void)
    *  RST initial state = 0 : used to reset the board
    *  DTR initial state = 0 ; not used
    */
-  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(MODEM_PWR_EN_GPIO_PORT, MODEM_PWR_EN_PIN, GPIO_PIN_SET);
 
   //  HAL_GPIO_WritePin(MODEM_RST_GPIO_PORT, MODEM_RST_PIN, GPIO_PIN_RESET);
   HAL_GPIO_WritePin(MODEM_RST_GPIO_PORT, MODEM_RST_PIN, GPIO_PIN_SET);
