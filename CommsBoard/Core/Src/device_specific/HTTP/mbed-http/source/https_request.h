@@ -23,7 +23,7 @@
 #include <map>
 
 #include "../../../HTTP/mbed-http/source/http_request_base.h"
-#include "TLSSocket.h"
+//#include "TLSSocket.h"
 
 #ifndef HTTP_RECEIVE_BUFFER_SIZE
 #define HTTP_RECEIVE_BUFFER_SIZE 8 * 1024

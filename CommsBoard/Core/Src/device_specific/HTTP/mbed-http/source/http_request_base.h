@@ -31,6 +31,9 @@
 #include "../../../HTTP/mbed-http/source/http_response.h"
 #include "../../../HTTP/mbed-http/source/nsapi_types.h"
 
+
+#include "cmsis_os.h"
+
 /**
  * @todo:
  *      - Userinfo parameter is not handled
@@ -112,7 +115,7 @@ public:
 
         ret = send_buffer(request, request_size);
 
-        free(request);
+        vPortFree(request);
 
         if (ret < 0)
         {
@@ -153,7 +156,7 @@ public:
 
         if (total_send_count < 0)
         {
-            free(request);
+        	vPortFree(request);
             _error = total_send_count;
             return nullptr;
         }
@@ -171,7 +174,7 @@ public:
             int size_buff_size = sprintf(size_buff, "%X\r\n", static_cast<size_t>(size));
             if ((total_send_count = send_buffer(size_buff, static_cast<uint32_t>(size_buff_size))) < 0)
             {
-                free(request);
+            	vPortFree(request);
                 _error = total_send_count;
                 return nullptr;
             }
@@ -180,7 +183,7 @@ public:
             total_send_count = send_buffer((char *) buffer, size);
             if (total_send_count < 0)
             {
-                free(request);
+            	vPortFree(request);
                 _error = total_send_count;
                 return nullptr;
             }
@@ -189,7 +192,7 @@ public:
             const char *rn = "\r\n";
             if ((total_send_count = send_buffer((char *) rn, 2)) < 0)
             {
-                free(request);
+            	vPortFree(request);
                 _error = total_send_count;
                 return nullptr;
             }
@@ -199,12 +202,12 @@ public:
         const char *fin = "0\r\n\r\n";
         if ((total_send_count = send_buffer((char *) fin, std::strlen(fin))) < 0)
         {
-            free(request);
+        	vPortFree(request);
             _error = total_send_count;
             return nullptr;
         }
 
-        free(request);
+        vPortFree(request);
 
         return create_http_response();
     }
@@ -326,7 +329,7 @@ private:
         HttpParser parser(_response, HTTP_RESPONSE, _body_callback);
 
         // Set up a receive buffer (on the heap)
-        auto *recv_buffer = (uint8_t *) malloc(HTTP_RECEIVE_BUFFER_SIZE);
+        auto *recv_buffer = (uint8_t *) pvPortMalloc(HTTP_RECEIVE_BUFFER_SIZE);
 
         // Socket::recv is called until we don't have any data anymore
         nsapi_size_or_error_t recv_ret;
@@ -340,7 +343,7 @@ private:
             {
                 // printf("Parsing failed... parsed %d bytes, received %d bytes\n", nparsed, recv_ret);
                 _error = -2101;
-                free(recv_buffer);
+                vPortFree(recv_buffer);
                 return nullptr;
             }
 
@@ -353,7 +356,7 @@ private:
         if (recv_ret < 0)
         {
             _error = recv_ret;
-            free(recv_buffer);
+            vPortFree(recv_buffer);
             return nullptr;
         }
 
@@ -361,7 +364,7 @@ private:
         parser.finish();
 
         // Free the receive buffer
-        free(recv_buffer);
+        vPortFree(recv_buffer);
 
         if (_we_created_socket)
         {

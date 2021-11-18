@@ -24,6 +24,7 @@
 
 #include "../../../HTTP/mbed-http/source/http_parsed_url.h"
 #include "../http_parser/http_parser.h"
+#include "cmsis_os.h"
 
 class HttpRequestBuilder
 {
@@ -107,7 +108,7 @@ public:
         }
 
         // Now let's print it
-        char *req = (char *) calloc(size + 1, 1);
+        char *req = (char *) pvPortMalloc(size + 1);
         char *originalReq = req;
 
         if (strlen(parsed_url->query()))

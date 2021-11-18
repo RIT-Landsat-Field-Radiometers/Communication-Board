@@ -11,6 +11,7 @@
 
 #define OD_DEFINITION
 #include "OD.h"
+#include <math.h>
 
 #if CO_VERSION_MAJOR < 4
 #error This Object dictionary is compatible with CANopenNode V4.0 and above!
@@ -152,33 +153,33 @@ OD_ATTR_RAM OD_RAM_t OD_RAM = {
     .x1001_errorRegister = 0x00,
     .x6000_sensor1Data = {
         .highestSub_indexSupported = 0x08,
-        .thermopile1_ChannelA = 0,
-        .thermopile1_ChannelB = 0,
-        .thermopile1_ChannelC = 0,
-        .thermopile1_ChannelD = 0,
-        .thermopile2_ChannelA = 0,
-        .thermopile2_ChannelB = 0,
-        .thermopile2_ChannelC = 0,
-        .thermopile2_ChannelD = 0
+        .thermopile1_ChannelA = NAN,
+        .thermopile1_ChannelB = NAN,
+        .thermopile1_ChannelC = NAN,
+        .thermopile1_ChannelD = NAN,
+        .thermopile2_ChannelA = NAN,
+        .thermopile2_ChannelB = NAN,
+        .thermopile2_ChannelC = NAN,
+        .thermopile2_ChannelD = NAN
     },
     .x6001_sensor2Data = {
         .highestSub_indexSupported = 0x08,
-        .thermopile1_ChannelA = 0,
-        .thermopile1_ChannelB = 0,
-        .thermopile1_ChannelC = 0,
-        .thermopile1_ChannelD = 0,
-        .thermopile2_ChannelA = 0,
-        .thermopile2_ChannelB = 0,
-        .thermopile2_ChannelC = 0,
-        .thermopile2_ChannelD = 0
+        .thermopile1_ChannelA = NAN,
+        .thermopile1_ChannelB = NAN,
+        .thermopile1_ChannelC = NAN,
+        .thermopile1_ChannelD = NAN,
+        .thermopile2_ChannelA = NAN,
+        .thermopile2_ChannelB = NAN,
+        .thermopile2_ChannelC = NAN,
+        .thermopile2_ChannelD = NAN
     },
     .x6003_BMEData = {
         .highestSub_indexSupported = 0x05,
-        .humidity = 0,
-        .pressure = 0,
-        .windSpeed = 0,
-        .windDirection = 0,
-        .rainDetection = 0x00
+        .humidity = NAN,
+        .pressure = NAN,
+        .windSpeed = NAN,
+        .windDirection = NAN,
+        .rainDetection = 0xff
     }
 };
 

@@ -22,6 +22,8 @@
 #include <vector>
 #include "../http_parser/http_parser.h"
 
+extern void* pvrealloc(void * ptr, uint32_t size);
+
 using namespace std;
 
 class HttpResponse {
@@ -40,7 +42,7 @@ public:
 
     ~HttpResponse() {
         if (body != NULL) {
-            free(body);
+        	vPortFree(body);
         }
 
         for (uint32_t ix = 0; ix < header_fields.size(); ix++) {
@@ -135,18 +137,19 @@ public:
 
         // only malloc when this fn is called, so we don't alloc when body callback's are enabled
         if (body == nullptr && !is_chunked) {
-            body = (char*)malloc(expected_content_length);
+            body = (char*)pvPortMalloc(expected_content_length);
         }
 
         if (is_chunked) {
             if (body == nullptr) {
-                body = (char*)malloc(length);
+                body = (char*)pvPortMalloc(length);
             }
             else {
                 char* original_body = body;
-                body = (char*)realloc(body, body_offset + length);
+//                body = (char*)realloc(body, body_offset + length);
+                body = (char*)pvrealloc(body, body_offset + length);
                 if (body == nullptr) {
-                    free(original_body);
+                	vPortFree(original_body);
                     return;
                 }
             }

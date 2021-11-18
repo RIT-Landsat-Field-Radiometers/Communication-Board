@@ -19,6 +19,7 @@
 #define _MBED_HTTP_PARSED_URL_H_
 
 #include "../http_parser/http_parser.h"
+#include <cstring>
 
 class ParsedUrl {
 public:
@@ -29,12 +30,17 @@ public:
         for (size_t ix = 0; ix < UF_MAX; ix++) {
             char* value;
             if (parsed_url.field_set & (1 << ix)) {
-                value = (char*)calloc(parsed_url.field_data[ix].len + 1, 1);
+//                value = (char*)calloc(parsed_url.field_data[ix].len + 1, 1);
+            	value = (char*)pvPortMalloc(parsed_url.field_data[ix].len + 1);
+            	memset(value, 0, parsed_url.field_data[ix].len + 1);
+
                 memcpy(value, url + parsed_url.field_data[ix].off,
                        parsed_url.field_data[ix].len);
             }
             else {
-                value = (char*)calloc(1, 1);
+//                value = (char*)calloc(1, 1);
+                value = (char*)pvPortMalloc(1);
+				memset(value, 0, 1);
             }
 
             switch ((http_parser_url_fields)ix) {
@@ -45,7 +51,7 @@ public:
                 case UF_USERINFO: _userinfo = value; break;
                 default:
                     // PORT is already parsed, FRAGMENT is not relevant for HTTP requests
-                    free(value);
+                	vPortFree(value);
                     break;
             }
         }
@@ -61,18 +67,20 @@ public:
         }
 
         if (strcmp(_path, "") == 0) {
-            free(_path);
-            _path = (char*)calloc(2, 1);
+        	vPortFree(_path);
+//            _path = (char*)calloc(2, 1);
+        	_path = (char*) pvPortMalloc(2);
+        	memset(_path, 0, 2);
             _path[0] = '/';
         }
     }
 
     ~ParsedUrl() {
-        if (_schema) free(_schema);
-        if (_host) free(_host);
-        if (_path) free(_path);
-        if (_query) free(_query);
-        if (_userinfo) free(_userinfo);
+        if (_schema) vPortFree(_schema);
+        if (_host) vPortFree(_host);
+        if (_path) vPortFree(_path);
+        if (_query) vPortFree(_query);
+        if (_userinfo) vPortFree(_userinfo);
     }
 
     [[nodiscard]] uint16_t port() const { return _port; }

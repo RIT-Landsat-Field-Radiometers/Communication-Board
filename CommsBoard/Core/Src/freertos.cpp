@@ -30,18 +30,30 @@
 #include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
+#include "adc.h"
+#include "rtc.h"
+
 #include <string.h>
 #include <cstdint>
 #include <stdio.h>
-#include "adc.h"
+#include <vector>
+#include <ctime>
 
 #include "bsp/DS28CM00ID/DS28CM00ID.h"
 #include "bsp/LEDs/LEDManager.h"
 #include "bsp/UART/UARTManager.h"
-#include "Logging/Logger.h"
-#include "CANOpenNode/OD.h"
-#include "301/CO_ODinterface.h"
 
+#include "Logging/Logger.h"
+#include "protob/hourly.pb.h"
+
+#include "Tasks/RTCTask.h"
+#include "Tasks/CANOpenTask.h"
+#include "Tasks/CellularTask.h"
+#include "Tasks/DataTask.h"
+#include "Tasks/FileSystemTask.h"
+#include "Tasks/TaskInterface.h"
+#include "Logging/UARTLogHandler.h"
+//#include "Tasks/MonitorTask.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,56 +76,46 @@
 extern DS28CM00_ID id1;
 extern LEDManager leds;
 extern UARTManager uartMan;
+extern UARTLogHandler *handler;
 extern Logger Log;
 
-
+//MonitorTask * monitor(MonitorTask::getInstance());
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
-osThreadAttr_t defaultTask_attributes;
+osThreadAttr_t defaultTask_attributes{0};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
-extern void canopen_start(void);
-extern void startLSS(void *argument);
-
-
-
 /* USER CODE END FunctionPrototypes */
 
-void StartDefaultTask(void *argument);
+void StartMainTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* Hook prototypes */
-void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName);
-void vApplicationMallocFailedHook(void);
+//void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName);
+//void vApplicationMallocFailedHook(void);
 
 /* USER CODE BEGIN 4 */
-void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
+extern "C" void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
 {
-   /* Run time stack overflow checking is performed if
-   configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
-   called if a stack overflow is detected. */
+	Log.error("stack overflow!!!!");
+	osDelay(100);
+	HAL_NVIC_SystemReset();
 }
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN 5 */
-void vApplicationMallocFailedHook(void)
+extern "C" void vApplicationMallocFailedHook(void)
 {
-   /* vApplicationMallocFailedHook() will only be called if
-   configUSE_MALLOC_FAILED_HOOK is set to 1 in FreeRTOSConfig.h. It is a hook
-   function that will get called if a call to pvPortMalloc() fails.
-   pvPortMalloc() is called internally by the kernel whenever a task, queue,
-   timer or semaphore is created. It is also called by various parts of the
-   demo application. If heap_1.c or heap_2.c are used, then the size of the
-   heap available to pvPortMalloc() is defined by configTOTAL_HEAP_SIZE in
-   FreeRTOSConfig.h, and the xPortGetFreeHeapSize() API function can be used
-   to query the size of free heap space that remains (although it does not
-   provide information on how the remaining heap might be fragmented). */
+	Log.error("malloc failed!!!!");
+	osDelay(100);
+	HAL_NVIC_SystemReset();
 }
+
 /* USER CODE END 5 */
 
 /**
@@ -125,48 +127,21 @@ void MX_FREERTOS_Init(void)
 {
 	/* USER CODE BEGIN Init */
 
-	defaultTask_attributes.name = "defaultTask";
+	defaultTask_attributes.name = "MainTask";
 	defaultTask_attributes.priority = (osPriority_t) osPriorityNormal;
 	defaultTask_attributes.stack_size = 2048 * 4;
 
 	/* USER CODE END Init */
 
-	/* USER CODE BEGIN RTOS_MUTEX */
-	/* add mutexes, ... */
-	/* USER CODE END RTOS_MUTEX */
-
-	/* USER CODE BEGIN RTOS_SEMAPHORES */
-	/* add semaphores, ... */
-	/* USER CODE END RTOS_SEMAPHORES */
-
-	/* USER CODE BEGIN RTOS_TIMERS */
-	/* start timers, add new ones, ... */
-	/* USER CODE END RTOS_TIMERS */
-
-	/* USER CODE BEGIN RTOS_QUEUES */
-	/* add queues, ... */
-	/* USER CODE END RTOS_QUEUES */
-
 	/* Create the thread(s) */
 	/* creation of defaultTask */
-	defaultTaskHandle = osThreadNew(StartDefaultTask, NULL,
+	defaultTaskHandle = osThreadNew(StartMainTask, NULL,
 			&defaultTask_attributes);
 
-	/* USER CODE BEGIN RTOS_THREADS */
-	/* add threads, ... */
-	osThreadNew(startLSS, nullptr, nullptr);
-
-	/* USER CODE END RTOS_THREADS */
-
-	/* USER CODE BEGIN RTOS_EVENTS */
-	/* add events, ... */
-
+	/* END RTOS_THREADS */
 	uartMan.start();
 	leds.start(false);
-	Log.info("Application Started");
-	canopen_start();
-	/* USER CODE END RTOS_EVENTS */
-
+//	Log.info("Application Started");
 }
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -176,138 +151,231 @@ void MX_FREERTOS_Init(void)
  * @retval None
  */
 /* USER CODE END Header_StartDefaultTask */
-typedef struct
-{
-	float t1channels[4];
-	float t2channels[4];
-}SensorReadings_t;
 
-typedef struct
-{
-	float humidity;
-	float pressure;
-	float wind_direction;
-	float wind_speed;
-	int8_t rain_detected;
-}EnviromentalReading_t;
+uint64_t data_cnt = 0;
+uint64_t save_cnt = 0;
+uint64_t up_cnt = 0;
+char recbuf[2] = {0};
 
-void readSensor(SensorReadings_t * out, int which)
-{
-	OD_entry_t * sensorEntry;
-	if(which == 1)
-	{
-		sensorEntry = OD_ENTRY_H6000_sensor1Data;
-	}
-	else
-	{
-		sensorEntry = OD_ENTRY_H6001_sensor2Data;
-	}
-
-	for(int channel = 0; channel < 8; channel++)
-	{
-		if(channel < 4)
-		{
-			OD_get_f32(sensorEntry, channel+1, &out->t1channels[channel], true);
-		}
-		else
-		{
-			OD_get_f32(sensorEntry, channel+1, &out->t2channels[channel-4], true);
-		}
-	}
-}
-
-void readEnviromental(EnviromentalReading_t * out)
-{
-	OD_entry_t * BMEEntry = OD_ENTRY_H6003_BMEData;
-	OD_get_f32(BMEEntry, 1, &out->humidity, true);
-	OD_get_f32(BMEEntry, 2, &out->pressure, true);
-	OD_get_f32(BMEEntry, 4, &out->wind_direction, true);
-	OD_get_f32(BMEEntry, 3, &out->wind_speed, true);
-	OD_get_i8(BMEEntry, 5, &out->rain_detected, true);
-}
-
-
-void StartDefaultTask(void *argument)
+void StartMainTask(void *argument)
 {
 	/* USER CODE BEGIN StartDefaultTask */
-	Logger privLog("SystemMonitor");
-	auto family = id1.getFamily();
-	auto id = id1.getID();
-	auto dev_mode = id1.getMode();
-	privLog.info("Family=%hhx, id=%llx, mode=%hhx", family, id, dev_mode);
 
-	uint32_t samples[2];
+	Logger privLog("Main");
+	privLog.info("Initializing Processes....");
 
-	HAL_ADC_Start_DMA(&hadc1, samples, 2);
+	handler->setLevel(LogLevel::INFO_LEVEL);
 
+	HAL_UART_RegisterCallback(&huart1, HAL_UART_RX_COMPLETE_CB_ID,
+			[](UART_HandleTypeDef *huart)
+			{
+				if(huart->Instance == USART1)
+				{
+					switch(recbuf[0])
+					{
+						case 'a':
+						case 'A':
+						handler->setLevel(LogLevel::ALL_LEVEL);
+						break;
 
-//	leds.slowFlash(WHITE);
+						case 'd':
+						case 'D':
+						handler->setLevel(LogLevel::DEBUG_LEVEL);
+						break;
 
-	SensorReadings_t sensors[2];
-	EnviromentalReading_t enviromental;
+						case 'i':
+						case 'I':
+						handler->setLevel(LogLevel::INFO_LEVEL);
+						break;
 
+						case 't':
+						case 'T':
+						handler->setLevel(LogLevel::TRACE_LEVEL);
+						break;
 
+						case 'w':
+						case 'W':
+						handler->setLevel(LogLevel::WARN_LEVEL);
+						break;
 
+						case 'e':
+						case 'E':
+						handler->setLevel(LogLevel::ERROR_LEVEL);
+						break;
 
+						case 'p':
+						case 'P':
+						handler->setLevel(LogLevel::PANIC_LEVEL);
+						break;
+
+						case 0:
+						default:
+						recbuf[0] = 0x00; // nop char
+						break;
+					}
+				HAL_UART_Receive_IT(huart, (uint8_t *)recbuf, 1);
+			}
+		});
+
+	HAL_UART_Receive_IT(&huart1, (uint8_t*) recbuf, 1);
+
+	privLog.debug("Starting Monitor...");
+	MonitorTask *mtask = MonitorTask::getInstance();
+	mtask->start();
+	/*
+	 * START OF CELLULAR START UP
+	 */
+	privLog.debug("Starting Cellular...");
+	CellularTask cellular;
+	cellular.start();
+	cellular.connect();
+	auto unixStartTime = cellular.getServerTime();
+	privLog.info("Raw epoch time: %" HEX_WORD, unixStartTime);
+//	auto unixStartTime = 1635983941;
+	/*
+	 * END OF CELLULAR START UP
+	 */
+	/*
+	 * START OF RTC START UP
+	 */
+	privLog.debug("Starting RTC...");
+	RTCTask rtc;
+	rtc.start();
+	rtc.setUnixTime(unixStartTime);
+	cellular.disconnect(); // Turn off cellular AFTER setting the clock since it takes a while
+	/*
+	 * END OF RTC START UP
+	 */
+	/*
+	 * START OF FILESYSTEM START UP
+	 */
+	privLog.debug("Starting FileSystem...");
+	FileSystemTask filesystem;
+	if(!filesystem.start())
+	{
+		for (;;)
+			osDelay(1000);
+	}
+	/*
+	 * END OF FILESYSTEM START UP
+	 */
+	/*
+	 * START OF CANOpen START UP
+	 */
+	privLog.debug("Starting CAN...");
+	CANOpenTask cantask(id1.getID());
+	cantask.start();
+	cantask.startLSSScan();
+	cantask.waitLSSComplete(); // this will block until the LSS scan is done
+	auto sensors = cantask.getSensorAddress();
+	auto bmes = cantask.getBMEAddress();
+	int idx = 1;
+	for(auto const & sen : sensors)
+	{
+		privLog.debug("Sensor[%d]- Vendor ID{%" HEX_WORD "}, Product Code{%" HEX_WORD "}, Revision Number{%" HEX_WORD "}, Serial Number{%" HEX_WORD "}",
+				idx++, sen.identity.vendorID, sen.identity.productCode, sen.identity.revisionNumber, sen.identity.serialNumber);
+	}
+	for(auto const & bme : bmes)
+	{
+		privLog.debug("   BME[%d]- Vendor ID{%" HEX_WORD "}, Product Code{%" HEX_WORD "}, Revision Number{%" HEX_WORD "}, Serial Number{%" HEX_WORD "}",
+				idx++, bme.identity.vendorID, bme.identity.productCode, bme.identity.revisionNumber, bme.identity.serialNumber);
+	}
+
+	cantask.startAllDevices();
+	auto ok = cantask.startPDOS(); // Now that IDs are assigned, allow collection of data to the Object Dictionary
+	if (!ok)
+	{
+		for (;;)
+			osDelay(1000);
+	}
+	cantask.resumeSYNC(); // The board will now send SYNC messages, that trigger data collection;
+	osDelay(1000); // wait a second so that there is valid data in the object dictionary before collecting it
+	/*
+	 * END OF CANOpen START UP
+	 */
+	/*
+	 * START OF DATA START UP
+	 */
+	privLog.debug("Starting Data collection...");
+	DataTask datatask;
+	datatask.start();
+	datatask.generateProtoBuf(rtc.getUnixTime()); // "Switch" databanks now, just so the timestamp is set
+	datatask.finishedSaving(); 				// Let the current bank reserve size
+	/*
+	 * END OF DATA START UP
+	 */
+
+	privLog.info("Initialization Complete, Now Running");
 	/* Infinite loop */
 	for (;;)
 	{
-		osDelay(1000);
-		// get the data from the CANOpen object dictionary
-		readSensor(&sensors[0], 1);
-		readSensor(&sensors[1], 2);
-		readEnviromental(&enviromental);
+		int32_t flags = rtc.waitFlags(RTCTask::ALARMA | RTCTask::ALARMB, 10);
 
-		//	@formatter:off
-		privLog.info("\r\n"
-				"Sensor1:\r\n"
-				"\tT1CA: %8.8f\r\n"
-				"\tT1CB: %8.8f\r\n"
-				"\tT1CC: %8.8f\r\n"
-				"\tT1CD: %8.8f\r\n"
-				"\tT2CA: %8.8f\r\n"
-				"\tT2CB: %8.8f\r\n"
-				"\tT2CC: %8.8f\r\n"
-				"\tT2CD: %8.8f\r\n"
-				"Sensor2:\r\n"
-				"\tT1CA: %8.8f\r\n"
-				"\tT1CB: %8.8f\r\n"
-				"\tT1CC: %8.8f\r\n"
-				"\tT1CD: %8.8f\r\n"
-				"\tT2CA: %8.8f\r\n"
-				"\tT2CB: %8.8f\r\n"
-				"\tT2CC: %8.8f\r\n"
-				"\tT2CD: %8.8f\r\n"
-				"Environmental:\r\n"
-				"\tHumidity: %8.8f\r\n"
-				"\tPressure: %8.8f\r\n"
-				"\tWind Speed: %8.8f\r\n"
-				"\tWind Direction: %8.8f\r\n"
-				"\tRain: %s",
-				sensors[0].t1channels[0], sensors[0].t1channels[1], sensors[0].t1channels[2], sensors[0].t1channels[3],
-				sensors[0].t2channels[0], sensors[0].t2channels[1], sensors[0].t2channels[2], sensors[0].t2channels[3],
-
-				sensors[1].t1channels[0], sensors[1].t1channels[1], sensors[1].t1channels[2], sensors[1].t1channels[3],
-				sensors[1].t2channels[0], sensors[1].t2channels[1], sensors[1].t2channels[2], sensors[1].t2channels[3],
-
-				enviromental.humidity, enviromental.pressure, enviromental.wind_speed, enviromental.wind_direction, enviromental.rain_detected != 0 ? "Yes" : "No");
-		//	@formatter:on
-
-		uint16_t raw = samples[0] & 0xfff;
-		double voltage = (raw / (4096.0)) * 3.3 * 11.0;//38.4115; // TODO: Why is this off?????
-
-
-		privLog.info("Battery voltage: %4.4f", voltage);
-
-		size_t freeHeap = xPortGetFreeHeapSize();
-		if (freeHeap < 2000)
+		if (flags > 0)
 		{
-			privLog.error("LOW HEAP, %u bytes remaining", freeHeap);
+			if (flags & RTCTask::ALARMA)
+			{
+				// Hourly alarm active
+				privLog.info("Hourly Alarm triggered at: %s",
+						rtc.getStringTime());
+				auto data = datatask.generateProtoBuf(rtc.getUnixTime());
+				data.commsSerial = cantask.getOwnAddress().identity.serialNumber;
+				data.fwVersion = cantask.getOwnAddress().identity.revisionNumber;
+				if (bmes.size() > 0 && data.has_bmeBoard)
+				{
+					data.bmeBoard.serialNumber = bmes[0].identity.serialNumber;
+					data.bmeBoard.fwVersion = bmes[0].identity.revisionNumber;
+				}
+				int sensorIDX = 0;
+				for (const auto &fp : sensors)
+				{
+					if (sensorIDX < data.sensors_count)
+					{
+						data.sensors[sensorIDX++].serialNumber = fp.identity.serialNumber;
+						data.sensors[sensorIDX++].fwVersion = fp.identity.revisionNumber;
+					}
+				}
+
+				auto events = mtask->getEvents(); // Get system events from last hour
+				data.events = events.data();
+				data.events_count = events.size();
+
+				auto res = filesystem.saveProtoBuf(data);
+				if (!res)
+				{
+					privLog.error("Failed to save data!!");
+				}
+				datatask.finishedSaving();
+				mtask->clearEvents();
+			}
+			if (flags & RTCTask::ALARMB)
+			{
+				// Daily alarm active
+				privLog.info("Daily Alarm triggered");
+				cellular.connect(); // Doing many operations, so keep it on until finished
+				auto curTime = rtc.getDateTime();
+				char dirpath[256];
+				sprintf(dirpath, "/data/%d/%d/%d", curTime.date.Year + 2000,
+						curTime.date.Month, curTime.date.Date - 1); // Look at previous day
+				auto files = filesystem.listDirectory(dirpath);
+				for (const auto &fp : files)
+				{
+					privLog.info("Uploading file: %s", fp.c_str());
+					auto reader = filesystem.createBufferedReader(fp);
+					auto res = cellular.uploadFile(cantask.getOwnAddress().identity.serialNumber, reader);
+					if(res)
+						privLog.info("OK");
+					else
+						privLog.error("NOT OK");
+				}
+
+				unixStartTime = cellular.getServerTime(); // get time from server to correct drift
+				rtc.setUnixTime(unixStartTime);
+
+				cellular.disconnect(); // turn it off to save power
+			}
 		}
-		if (voltage < 11.8)
-		{
-			privLog.warn("LOW BATTERY, %4.4f", voltage);
-		}
+
 	}
 	/* USER CODE END StartDefaultTask */
 }

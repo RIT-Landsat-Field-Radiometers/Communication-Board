@@ -81,7 +81,58 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void* operator new(std::size_t sz)
+{
+    return pvPortMalloc(sz);
+}
 
+void operator delete(void* ptr) noexcept
+{
+	vPortFree(ptr);
+}
+
+extern void* pvrealloc(void * ptr, uint32_t size)
+{
+	if(ptr == nullptr)
+	{
+		return pvPortMalloc(size);
+	}
+	else
+	{
+		typedef struct __A_BLOCK_LINK
+		{
+			struct __A_BLOCK_LINK *pxNextFreeBlock;	/*<< The next free block in the list. */
+			size_t xBlockSize;						/*<< The size of the free block. */
+		} __BlockLink_t;
+
+		uint8_t *puc = ( uint8_t * ) ptr;
+		__BlockLink_t *pxLink;
+		puc -= ( sizeof( __BlockLink_t ) + ( ( size_t ) ( 8 - 1 ) ) ) & ~( ( size_t ) 0x0007 );
+		pxLink = ( __BlockLink_t * ) puc;
+
+		size_t block_size = (pxLink->xBlockSize & ~0) - (( sizeof( __BlockLink_t ) + ( ( size_t ) ( 8 - 1 ) ) ) & ~( ( size_t ) 0x0007 ));
+
+		void *newptr = pvPortMalloc(size);
+		if(newptr == nullptr)
+		{
+			vPortFree(ptr);
+			return nullptr;
+		}
+		memset(newptr, 0, size);
+
+		if(block_size > size)
+		{
+			memmove(newptr, ptr, size);
+		}
+		else
+		{
+			memmove(newptr, ptr, block_size);
+		}
+		vPortFree(ptr);
+		return newptr;
+	}
+
+}
 /* USER CODE END 0 */
 
 /**
@@ -128,6 +179,7 @@ int main(void)
 
 	/* USER CODE BEGIN 2 */
 
+    HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 	HAL_GPIO_WritePin(CAN_MODE_GPIO_Port, CAN_MODE_Pin, GPIO_PIN_RESET);
 	/* USER CODE END 2 */
 
@@ -242,10 +294,10 @@ extern void canopen_oneMs(void);
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	/* USER CODE BEGIN Callback 0 */
-	if (htim->Instance == TIM15)
-	{
-		canopen_oneMs();
-	}
+//	if (htim->Instance == TIM15)
+//	{
+//		canopen_oneMs();
+//	}
 	/* USER CODE END Callback 0 */
 	if (htim->Instance == TIM17)
 	{

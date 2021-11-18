@@ -241,9 +241,9 @@ static void com_ip_modem_empty_queue(osMessageQId queue);
 static bool com_translate_ip_address(const com_sockaddr_t *addr,
                                      int32_t              addrlen,
                                      socket_addr_t        *socket_addr);
-static bool com_convert_IPString_to_sockaddr(uint16_t       ipaddr_port,
-                                             com_char_t     *ipaddr_str,
-                                             com_sockaddr_t *sockaddr);
+//bool com_convert_IPString_to_sockaddr(uint16_t       ipaddr_port,
+//                                             com_char_t     *ipaddr_str,
+//                                             com_sockaddr_t *sockaddr);
 static void com_convert_ipaddr_port_to_sockaddr(const com_ip_addr_t *ip_addr,
                                                 uint16_t port,
                                                 com_sockaddr_in_t *sockaddr_in);
@@ -651,7 +651,7 @@ static bool com_translate_ip_address(const com_sockaddr_t *addr,
   * @note   address is uint32_t 0xDDCCBBAA and port is COM_HTONS
   * @retval bool - false/true conversion ok/nok
   */
-static bool com_convert_IPString_to_sockaddr(uint16_t       ipaddr_port,
+bool com_convert_IPString_to_sockaddr(uint16_t       ipaddr_port,
                                              com_char_t     *ipaddr_str,
                                              com_sockaddr_t *sockaddr)
 {

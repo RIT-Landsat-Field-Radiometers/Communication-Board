@@ -128,6 +128,10 @@ space. */
 static size_t xBlockAllocatedBit = 0;
 
 /*-----------------------------------------------------------*/
+uint64_t allocCount = 0;
+uint64_t freeCount = 0;
+
+
 
 void *pvPortMalloc( size_t xWantedSize )
 {
@@ -137,6 +141,7 @@ void *pvReturn = NULL;
 	/* The heap must be initialised before the first call to
 	prvPortMalloc(). */
 	configASSERT( pxEnd );
+	allocCount++;
 
 	vTaskSuspendAll();
 	{
@@ -273,7 +278,7 @@ void vPortFree( void *pv )
 {
 uint8_t *puc = ( uint8_t * ) pv;
 BlockLink_t *pxLink;
-
+	freeCount++;
 	if( pv != NULL )
 	{
 		/* The memory being freed will have an BlockLink_t structure immediately
@@ -482,4 +487,3 @@ const HeapRegion_t *pxHeapRegion;
 	/* Work out the position of the top bit in a size_t variable. */
 	xBlockAllocatedBit = ( ( size_t ) 1 ) << ( ( sizeof( size_t ) * heapBITS_PER_BYTE ) - 1 );
 }
-

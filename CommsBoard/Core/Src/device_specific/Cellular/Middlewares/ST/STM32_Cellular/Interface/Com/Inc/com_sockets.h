@@ -206,6 +206,10 @@ extern "C" {
   */
 
 /* Exported functions ------------------------------------------------------- */
+
+bool com_convert_IPString_to_sockaddr(uint16_t       ipaddr_port,
+                                             com_char_t     *ipaddr_str,
+                                             com_sockaddr_t *sockaddr);
 /**
   ******************************************************************************
   @verbatim
