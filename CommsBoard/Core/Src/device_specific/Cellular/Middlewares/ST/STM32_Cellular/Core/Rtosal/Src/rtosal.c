@@ -32,10 +32,76 @@ typedef char RTOS_CHAR_t;
 /* Private variables ---------------------------------------------------------*/
 
 /* Global variables ----------------------------------------------------------*/
+osMutexId cellularCreateLock = NULL;
 
+
+uint8_t numCellularThreads = 0;
+osThreadId cellularThreads[16] = {NULL};
+
+uint8_t numCellularSemas = 0;
+osSemaphoreId cellularSemas[16] = {NULL};
+
+uint8_t numCellularMutexs = 0;
+osMutexId cellularMutexs[16] = {NULL};
+
+uint8_t numCellularQueues = 0;
+osMessageQId cellularQueues[16] = {NULL};
+
+uint8_t numCellularTimers = 0;
+osTimerId cellularTimers[16] = {NULL};
 /* Private function prototypes -----------------------------------------------*/
 
 /* Functions Definition ------------------------------------------------------*/
+
+void stopAllCelluar()
+{
+	for(int idx = 0; idx < numCellularThreads; idx++)
+	{
+		osThreadTerminate(cellularThreads[idx]);
+		cellularThreads[idx] = NULL;
+	}
+	numCellularThreads = 0;
+
+	for(int idx = 0; idx < numCellularTimers; idx++)
+	{
+		osTimerDelete(cellularTimers[idx]);
+		cellularTimers[idx] = NULL;
+	}
+	numCellularTimers = 0;
+
+	for(int idx = 0; idx < numCellularMutexs; idx++)
+	{
+//		osMutexRelease(cellularMutexs[idx]);
+		osMutexDelete(cellularMutexs[idx]);
+		cellularMutexs[idx] = NULL;
+	}
+	numCellularMutexs = 0;
+
+	for(int idx = 0; idx < numCellularSemas; idx++)
+	{
+		while( ((int32_t)osSemaphoreGetCount(cellularSemas[idx])) > 0)
+		{
+			osSemaphoreRelease(cellularSemas[idx]);
+		}
+
+		osSemaphoreDelete(cellularSemas[idx]);
+		cellularSemas[idx] = NULL;
+	}
+	numCellularSemas = 0;
+
+	for(int idx = 0; idx < numCellularQueues; idx++)
+	{
+		osMessageQueueReset(cellularQueues[idx]);
+		osMessageQueueDelete(cellularQueues[idx]);
+		cellularQueues[idx] = NULL;
+	}
+	numCellularQueues = 0;
+
+	if(cellularCreateLock != NULL)
+	{
+		osMutexRelease(cellularCreateLock);
+	}
+}
 
 /*********************************** KERNEL ***********************************/
 
@@ -127,6 +193,14 @@ osThreadId rtosalThreadNew(const rtosal_char_t *p_name, os_pthread func, osPrior
   retval = osThreadNew((osThreadFunc_t)func, p_arg, &rtosal_thread_attr);
 #endif /* osCMSIS < 0x20000U */
 
+  if(cellularCreateLock == NULL)
+  {
+	  cellularCreateLock = osMutexNew(NULL);
+  }
+  osMutexAcquire(cellularCreateLock, osWaitForever);
+  cellularThreads[numCellularThreads++] = retval;
+  rtosalMutexRelease(cellularCreateLock);
+
   return (retval);
 }
 
@@ -150,6 +224,32 @@ rtosalStatus rtosalThreadTerminate(osThreadId thread_id)
 {
   rtosalStatus status;
   status = osThreadTerminate(thread_id);
+
+
+  if(cellularCreateLock == NULL)
+  {
+	  cellularCreateLock = osMutexNew(NULL);
+  }
+  osMutexAcquire(cellularCreateLock, osWaitForever);
+  for(uint8_t idx = 0; idx < numCellularThreads; idx++)
+  {
+	  if(thread_id == cellularThreads[idx])
+	  {
+		  if(idx < (numCellularThreads - 1))
+		  {
+			  cellularThreads[idx] = cellularThreads[numCellularThreads - 1];
+			  cellularThreads[numCellularThreads - 1] = NULL;
+		  }
+		  else
+		  {
+			  cellularThreads[idx] = NULL;
+		  }
+
+		  numCellularThreads--;
+          break;
+	  }
+  }
+  rtosalMutexRelease(cellularCreateLock);
   return (status);
 }
 
@@ -180,6 +280,14 @@ osSemaphoreId rtosalSemaphoreNew(const rtosal_char_t *p_name, uint32_t count)
 
   retval = osSemaphoreNew(count, count, &rtosal_sem_attr); /* maximum count is set to initial count */
 #endif /* osCMSIS < 0x20000U */
+
+  if(cellularCreateLock == NULL)
+  {
+	  cellularCreateLock = osMutexNew(NULL);
+  }
+  osMutexAcquire(cellularCreateLock, osWaitForever);
+  cellularSemas[numCellularSemas++] = retval;
+  rtosalMutexRelease(cellularCreateLock);
 
   return (retval);
 }
@@ -229,6 +337,32 @@ rtosalStatus rtosalSemaphoreDelete(osSemaphoreId semaphore_id)
 {
   rtosalStatus status;
   status = osSemaphoreDelete(semaphore_id);
+
+  if(cellularCreateLock == NULL)
+  {
+	  cellularCreateLock = osMutexNew(NULL);
+  }
+  osMutexAcquire(cellularCreateLock, osWaitForever);
+  for(uint8_t idx = 0; idx < numCellularSemas; idx++)
+  {
+	  if(semaphore_id == cellularSemas[idx])
+	  {
+		  if(idx < (numCellularSemas - 1))
+		  {
+			  cellularSemas[idx] = cellularSemas[numCellularSemas - 1];
+			  cellularSemas[numCellularSemas - 1] = NULL;
+		  }
+		  else
+		  {
+			  cellularSemas[idx] = NULL;
+		  }
+
+		  numCellularSemas--;
+          break;
+	  }
+  }
+  rtosalMutexRelease(cellularCreateLock);
+
   return (status);
 }
 
@@ -259,6 +393,16 @@ osMutexId rtosalMutexNew(const rtosal_char_t *p_name)
 
   retval = osMutexNew(&rtosal_mutex_attr);
 #endif /* osCMSIS < 0x20000U */
+
+
+  if(cellularCreateLock == NULL)
+  {
+	  cellularCreateLock = osMutexNew(NULL);
+  }
+  osMutexAcquire(cellularCreateLock, osWaitForever);
+  cellularMutexs[numCellularMutexs++] = retval;
+  rtosalMutexRelease(cellularCreateLock);
+
 
   return (retval);
 }
@@ -306,6 +450,30 @@ rtosalStatus rtosalMutexDelete(osMutexId mutex_id)
 {
   rtosalStatus status;
   status = osMutexDelete(mutex_id);
+  if(cellularCreateLock == NULL)
+  {
+	  cellularCreateLock = osMutexNew(NULL);
+  }
+  osMutexAcquire(cellularCreateLock, osWaitForever);
+  for(uint8_t idx = 0; idx < numCellularMutexs; idx++)
+  {
+	  if(mutex_id == cellularMutexs[idx])
+	  {
+		  if(idx < (numCellularMutexs - 1))
+		  {
+			  cellularMutexs[idx] = cellularMutexs[numCellularMutexs - 1];
+			  cellularMutexs[numCellularMutexs - 1] = NULL;
+		  }
+		  else
+		  {
+			  cellularMutexs[idx] = NULL;
+		  }
+
+		  numCellularMutexs--;
+          break;
+	  }
+  }
+  rtosalMutexRelease(cellularCreateLock);
   return (status);
 }
 
@@ -342,6 +510,14 @@ osMessageQId rtosalMessageQueueNew(const rtosal_char_t *p_name, uint32_t queue_s
   /* This implementation supports 32-bit sized messages only */
   retval = osMessageQueueNew(queue_size, sizeof(uint32_t), &rtosal_message_attr);
 #endif /* osCMSIS < 0x20000U */
+
+  if(cellularCreateLock == NULL)
+  {
+	  cellularCreateLock = osMutexNew(NULL);
+  }
+  osMutexAcquire(cellularCreateLock, osWaitForever);
+  cellularQueues[numCellularQueues++] = retval;
+  rtosalMutexRelease(cellularCreateLock);
 
   return (retval);
 }
@@ -442,6 +618,15 @@ osTimerId rtosalTimerNew(const rtosal_char_t *p_name, os_ptimer func, os_timer_t
   retval = osTimerNew((osTimerFunc_t)func, (osTimerType_t)type, p_arg, &rtosal_timer_attr);
 #endif /* osCMSIS < 0x20000U */
 
+  if(cellularCreateLock == NULL)
+  {
+	  cellularCreateLock = osMutexNew(NULL);
+  }
+  osMutexAcquire(cellularCreateLock, osWaitForever);
+  cellularTimers[numCellularTimers++] = retval;
+  rtosalMutexRelease(cellularCreateLock);
+
+
   return (retval);
 }
 
@@ -481,6 +666,32 @@ rtosalStatus rtosalTimerDelete(osTimerId timer_id)
 {
   rtosalStatus status;
   status = osTimerDelete(timer_id);
+
+  if(cellularCreateLock == NULL)
+  {
+	  cellularCreateLock = osMutexNew(NULL);
+  }
+  osMutexAcquire(cellularCreateLock, osWaitForever);
+  for(uint8_t idx = 0; idx < numCellularTimers; idx++)
+  {
+	  if(timer_id == cellularTimers[idx])
+	  {
+		  if(idx < (numCellularTimers - 1))
+		  {
+			  cellularTimers[idx] = cellularTimers[numCellularTimers - 1];
+			  cellularTimers[numCellularTimers - 1] = NULL;
+		  }
+		  else
+		  {
+			  cellularTimers[idx] = NULL;
+		  }
+
+		  numCellularTimers--;
+          break;
+	  }
+  }
+  rtosalMutexRelease(cellularCreateLock);
+
   return (status);
 }
 

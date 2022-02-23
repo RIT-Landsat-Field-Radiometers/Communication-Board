@@ -59,6 +59,10 @@ typedef osStatus_t  rtosalStatus;
 /* Exported macros -----------------------------------------------------------*/
 
 /* Exported functions ------------------------------------------------------- */
+
+void stopAllCelluar();
+
+
 /*********************************** KERNEL ***********************************/
 /**
   * @brief  Initialize the RTOS kernel.

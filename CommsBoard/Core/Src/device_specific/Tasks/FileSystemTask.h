@@ -42,6 +42,8 @@ public:
 	uint64_t getFullCapacity();
 
 	uint64_t getRemainingCapacity();
+
+	std::string getHostnameFromConfig();
 };
 
 #endif /* SRC_DEVICE_SPECIFIC_TASKS_FILESYSTEMTASK_H_ */

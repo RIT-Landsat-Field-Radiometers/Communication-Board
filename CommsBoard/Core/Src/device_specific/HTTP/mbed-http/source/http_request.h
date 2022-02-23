@@ -46,6 +46,11 @@ extern bool com_convert_IPString_to_sockaddr(uint16_t       ipaddr_port,
  */
 class HttpRequest: public HttpRequestBase
 {
+private:
+	HttpRequest()
+	{
+
+	}
 public:
 	friend class HttpRequestBase;
 
@@ -103,6 +108,23 @@ public:
 
 	virtual ~HttpRequest()
 	{
+	}
+
+
+	static int32_t make_socket(const char *url)
+	{
+		ParsedUrl parsed(url);
+		HttpRequest _this;
+		nsapi_error_t connection_result = _this.connect_socket(parsed.host(), parsed.port());
+		_this._we_created_socket = false; // Otherwise the destructor will close the socket
+		if(connection_result == NSAPI_ERROR_OK)
+		{
+			return _this._socket;
+		}
+		else
+		{
+			return -1;
+		}
 	}
 
 protected:

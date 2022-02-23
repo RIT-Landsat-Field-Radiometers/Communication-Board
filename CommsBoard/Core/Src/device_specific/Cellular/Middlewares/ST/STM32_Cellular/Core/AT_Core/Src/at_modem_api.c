@@ -35,7 +35,7 @@
 /* Private macros ------------------------------------------------------------*/
 #if (USE_TRACE_ATCUSTOM_COMMON == 1U)
 #if (USE_PRINTF == 0U)
-#include "trace_interface.h"
+#include "Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Inc/trace_interface.h"
 #define PRINT_INFO(format, args...) TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_P0, "ATCustom:" format "\n\r", ## args)
 #define PRINT_DBG(format, args...)  TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_P1, "ATCustom:" format "\n\r", ## args)
 #define PRINT_ERR(format, args...)  TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_ERR, "ATCustom ERROR:" format "\n\r", ## args)
@@ -70,7 +70,7 @@ at_status_t atcc_initParsers(sysctrl_device_type_t device_type)
   at_status_t retval;
 
   /* check if device is already initialized */
-  if (at_custom_func[device_type].initialized == 0U)
+//  if (at_custom_func[device_type].initialized == 0U)
   {
     /* Init  AT functions pointers */
     atcma_init_at_func_ptrs(&at_custom_func[device_type]);
@@ -78,11 +78,11 @@ at_status_t atcc_initParsers(sysctrl_device_type_t device_type)
     at_custom_func[device_type].initialized = 1U;
     retval = ATSTATUS_OK;
   }
-  else
-  {
-    PRINT_ERR("Device type %d AT functions already initialized", device_type);
-    retval = ATSTATUS_ERROR;
-  }
+//  else
+//  {
+//    PRINT_ERR("Device type %d AT functions already initialized", device_type);
+//    retval = ATSTATUS_ERROR;
+//  }
 
   return (retval);
 }
@@ -265,7 +265,10 @@ void atcc_hw_event(sysctrl_device_type_t deviceType, at_hw_event_t hwEvent, GPIO
    */
   if (deviceType == DEVTYPE_MODEM_CELLULAR)
   {
-    (void)(*at_custom_func[DEVTYPE_MODEM_CELLULAR].f_hw_event)(deviceType, hwEvent, gstate);
+	  if(at_custom_func[DEVTYPE_MODEM_CELLULAR].f_hw_event != NULL)
+	  {
+		  (void)(*at_custom_func[DEVTYPE_MODEM_CELLULAR].f_hw_event)(deviceType, hwEvent, gstate);
+	  }
   }
 }
 

@@ -2482,6 +2482,20 @@ static void CST_cellular_service_task(void *argument)
 
   cst_autom_event_t autom_event;
 
+  cst_context_t default_contex =
+  {
+    CST_BOOT_STATE, CST_NO_FAIL, CS_PDN_EVENT_NW_DETACH,    /* Automaton State, FAIL Cause,  */
+    { 0U, 0U},                                         /* signal quality */
+    CS_NRS_NOT_REGISTERED_NOT_SEARCHING, CS_NRS_NOT_REGISTERED_NOT_SEARCHING, CS_NRS_NOT_REGISTERED_NOT_SEARCHING,
+    0U,                                                /* activate_pdn_nfmc_tempo_count */
+    0U,                                                /* register_retry_tempo_count */
+    0U,                                                /* sim slot index */
+    false,                                             /* modem power status : power off */
+    0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U     /* fail counters */
+  };
+
+  cst_context = default_contex;
+
   /* Automation infinite loop */
   for (;;)
   {

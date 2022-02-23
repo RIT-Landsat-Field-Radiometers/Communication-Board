@@ -36,7 +36,7 @@
 /* Private macros ------------------------------------------------------------*/
 #if (USE_TRACE_ATCORE == 1U)
 #if (USE_PRINTF  == 0U)
-#include "trace_interface.h"
+#include "Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Inc/trace_interface.h"
 #define TRACE_INFO(format, args...) TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_P0, "ATCore:" format "\n\r", ## args)
 #define TRACE_DBG(format, args...)  TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_P1, "ATCore:" format "\n\r", ## args)
 #define TRACE_ERR(format, args...)  TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_ERR, "ATCore ERROR:" format "\n\r", ## args)
@@ -120,12 +120,12 @@ at_status_t  AT_init(void)
   at_status_t retval;
 
   /* should be called once */
-  if (AT_Core_initialized == 1U)
-  {
-    LOG_ERROR(1, ERROR_WARNING);
-    retval = ATSTATUS_ERROR;
-  }
-  else
+//  if (AT_Core_initialized == 1U)
+//  {
+//    LOG_ERROR(1, ERROR_WARNING);
+//    retval = ATSTATUS_ERROR;
+//  }
+//  else
   {
     MsgReceived = 0U;
     register_URC_callback = NULL;

@@ -263,6 +263,8 @@ public:
 protected:
     virtual nsapi_error_t connect_socket(char *host, uint16_t port) = 0;
 
+    HttpRequestBase(){};
+
 private:
     nsapi_error_t connect_socket()
     {

@@ -10,6 +10,7 @@
 *******************************************************************************/
 
 #define OD_DEFINITION
+//#include "301/CO_ODinterface.h"
 #include "OD.h"
 #include <math.h>
 
@@ -93,6 +94,16 @@ OD_ATTR_PERSIST_COMM OD_PERSIST_COMM_t OD_PERSIST_COMM = {
         .COB_IDUsedByRPDO = 0x40000384,
         .transmissionType = 0x01
     },
+    .x140B_RPDOCommunicationParameter = {
+        .maxSub_index = 0x06,
+        .COB_IDUsedByRPDO = 0x40000582,
+        .transmissionType = 0x01
+    },
+    .x140C_RPDOCommunicationParameter = {
+        .maxSub_index = 0x06,
+        .COB_IDUsedByRPDO = 0x40000583,
+        .transmissionType = 0x01
+    },
     .x1600_RPDOMappingParameter = {
         .numberOfMappedObjects = 0x02,
         .mappedObject_1 = 0x60000120,
@@ -144,15 +155,26 @@ OD_ATTR_PERSIST_COMM OD_PERSIST_COMM_t OD_PERSIST_COMM = {
         .mappedObject_2 = 0x60030420
     },
     .x160A_RPDOMappingParameter = {
-        .numberOfMappedObjects = 0x01,
-        .mappedObject_1 = 0x60030508
+        .numberOfMappedObjects = 0x02,
+        .mappedObject_1 = 0x60030620,
+        .mappedObject_2 = 0x60030508
+    },
+    .x160B_RPDOMappingParameter = {
+        .numberOfMappedObjects = 0x02,
+        .mappedObject_1 = 0x60000920,
+        .mappedObject_2 = 0x60000A20
+    },
+    .x160C_RPDOMappingParameter = {
+        .numberOfMappedObjects = 0x02,
+        .mappedObject_1 = 0x60010920,
+        .mappedObject_2 = 0x60010A20
     }
 };
 
 OD_ATTR_RAM OD_RAM_t OD_RAM = {
     .x1001_errorRegister = 0x00,
     .x6000_sensor1Data = {
-        .highestSub_indexSupported = 0x08,
+        .highestSub_indexSupported = 0x0A,
         .thermopile1_ChannelA = NAN,
         .thermopile1_ChannelB = NAN,
         .thermopile1_ChannelC = NAN,
@@ -160,10 +182,12 @@ OD_ATTR_RAM OD_RAM_t OD_RAM = {
         .thermopile2_ChannelA = NAN,
         .thermopile2_ChannelB = NAN,
         .thermopile2_ChannelC = NAN,
-        .thermopile2_ChannelD = NAN
+        .thermopile2_ChannelD = NAN,
+        .thermopile1_Therm = NAN,
+        .thermopile2_Therm = NAN
     },
     .x6001_sensor2Data = {
-        .highestSub_indexSupported = 0x08,
+        .highestSub_indexSupported = 0x0A,
         .thermopile1_ChannelA = NAN,
         .thermopile1_ChannelB = NAN,
         .thermopile1_ChannelC = NAN,
@@ -171,15 +195,18 @@ OD_ATTR_RAM OD_RAM_t OD_RAM = {
         .thermopile2_ChannelA = NAN,
         .thermopile2_ChannelB = NAN,
         .thermopile2_ChannelC = NAN,
-        .thermopile2_ChannelD = NAN
+        .thermopile2_ChannelD = NAN,
+        .thermopile1_Therm = NAN,
+        .thermopile2_Therm = NAN
     },
     .x6003_BMEData = {
-        .highestSub_indexSupported = 0x05,
+        .highestSub_indexSupported = 0x06,
         .humidity = NAN,
         .pressure = NAN,
         .windSpeed = NAN,
         .windDirection = NAN,
-        .rainDetection = 0xff
+        .rainDetection = 0xff,
+        .airTemp = NAN
     }
 };
 
@@ -212,6 +239,8 @@ typedef struct {
     OD_obj_record_t o_1408_RPDOCommunicationParameter[3];
     OD_obj_record_t o_1409_RPDOCommunicationParameter[3];
     OD_obj_record_t o_140A_RPDOCommunicationParameter[3];
+    OD_obj_record_t o_140B_RPDOCommunicationParameter[3];
+    OD_obj_record_t o_140C_RPDOCommunicationParameter[3];
     OD_obj_record_t o_1600_RPDOMappingParameter[3];
     OD_obj_record_t o_1601_RPDOMappingParameter[3];
     OD_obj_record_t o_1602_RPDOMappingParameter[3];
@@ -222,10 +251,12 @@ typedef struct {
     OD_obj_record_t o_1607_RPDOMappingParameter[3];
     OD_obj_record_t o_1608_RPDOMappingParameter[3];
     OD_obj_record_t o_1609_RPDOMappingParameter[3];
-    OD_obj_record_t o_160A_RPDOMappingParameter[2];
-    OD_obj_record_t o_6000_sensor1Data[9];
-    OD_obj_record_t o_6001_sensor2Data[9];
-    OD_obj_record_t o_6003_BMEData[6];
+    OD_obj_record_t o_160A_RPDOMappingParameter[3];
+    OD_obj_record_t o_160B_RPDOMappingParameter[3];
+    OD_obj_record_t o_160C_RPDOMappingParameter[3];
+    OD_obj_record_t o_6000_sensor1Data[11];
+    OD_obj_record_t o_6001_sensor2Data[11];
+    OD_obj_record_t o_6003_BMEData[7];
 } ODObjs_t;
 
 static CO_PROGMEM ODObjs_t ODObjs = {
@@ -542,6 +573,46 @@ static CO_PROGMEM ODObjs_t ODObjs = {
             .dataLength = 1
         }
     },
+    .o_140B_RPDOCommunicationParameter = {
+        {
+            .dataOrig = &OD_PERSIST_COMM.x140B_RPDOCommunicationParameter.maxSub_index,
+            .subIndex = 0,
+            .attribute = 0,
+            .dataLength = 1
+        },
+        {
+            .dataOrig = &OD_PERSIST_COMM.x140B_RPDOCommunicationParameter.COB_IDUsedByRPDO,
+            .subIndex = 1,
+            .attribute = ODA_MB,
+            .dataLength = 4
+        },
+        {
+            .dataOrig = &OD_PERSIST_COMM.x140B_RPDOCommunicationParameter.transmissionType,
+            .subIndex = 2,
+            .attribute = 0,
+            .dataLength = 1
+        }
+    },
+    .o_140C_RPDOCommunicationParameter = {
+        {
+            .dataOrig = &OD_PERSIST_COMM.x140C_RPDOCommunicationParameter.maxSub_index,
+            .subIndex = 0,
+            .attribute = 0,
+            .dataLength = 1
+        },
+        {
+            .dataOrig = &OD_PERSIST_COMM.x140C_RPDOCommunicationParameter.COB_IDUsedByRPDO,
+            .subIndex = 1,
+            .attribute = ODA_MB,
+            .dataLength = 4
+        },
+        {
+            .dataOrig = &OD_PERSIST_COMM.x140C_RPDOCommunicationParameter.transmissionType,
+            .subIndex = 2,
+            .attribute = 0,
+            .dataLength = 1
+        }
+    },
     .o_1600_RPDOMappingParameter = {
         {
             .dataOrig = &OD_PERSIST_COMM.x1600_RPDOMappingParameter.numberOfMappedObjects,
@@ -754,6 +825,52 @@ static CO_PROGMEM ODObjs_t ODObjs = {
             .subIndex = 1,
             .attribute = ODA_MB,
             .dataLength = 4
+        },
+        {
+            .dataOrig = &OD_PERSIST_COMM.x160A_RPDOMappingParameter.mappedObject_2,
+            .subIndex = 2,
+            .attribute = ODA_MB,
+            .dataLength = 4
+        }
+    },
+    .o_160B_RPDOMappingParameter = {
+        {
+            .dataOrig = &OD_PERSIST_COMM.x160B_RPDOMappingParameter.numberOfMappedObjects,
+            .subIndex = 0,
+            .attribute = 0,
+            .dataLength = 1
+        },
+        {
+            .dataOrig = &OD_PERSIST_COMM.x160B_RPDOMappingParameter.mappedObject_1,
+            .subIndex = 1,
+            .attribute = ODA_MB,
+            .dataLength = 4
+        },
+        {
+            .dataOrig = &OD_PERSIST_COMM.x160B_RPDOMappingParameter.mappedObject_2,
+            .subIndex = 2,
+            .attribute = ODA_MB,
+            .dataLength = 4
+        }
+    },
+    .o_160C_RPDOMappingParameter = {
+        {
+            .dataOrig = &OD_PERSIST_COMM.x160C_RPDOMappingParameter.numberOfMappedObjects,
+            .subIndex = 0,
+            .attribute = 0,
+            .dataLength = 1
+        },
+        {
+            .dataOrig = &OD_PERSIST_COMM.x160C_RPDOMappingParameter.mappedObject_1,
+            .subIndex = 1,
+            .attribute = ODA_MB,
+            .dataLength = 4
+        },
+        {
+            .dataOrig = &OD_PERSIST_COMM.x160C_RPDOMappingParameter.mappedObject_2,
+            .subIndex = 2,
+            .attribute = ODA_MB,
+            .dataLength = 4
         }
     },
     .o_6000_sensor1Data = {
@@ -808,6 +925,18 @@ static CO_PROGMEM ODObjs_t ODObjs = {
         {
             .dataOrig = &OD_RAM.x6000_sensor1Data.thermopile2_ChannelD,
             .subIndex = 8,
+            .attribute = ODA_RPDO | ODA_MB,
+            .dataLength = 4
+        },
+        {
+            .dataOrig = &OD_RAM.x6000_sensor1Data.thermopile1_Therm,
+            .subIndex = 9,
+            .attribute = ODA_RPDO | ODA_MB,
+            .dataLength = 4
+        },
+        {
+            .dataOrig = &OD_RAM.x6000_sensor1Data.thermopile2_Therm,
+            .subIndex = 10,
             .attribute = ODA_RPDO | ODA_MB,
             .dataLength = 4
         }
@@ -866,6 +995,18 @@ static CO_PROGMEM ODObjs_t ODObjs = {
             .subIndex = 8,
             .attribute = ODA_RPDO | ODA_MB,
             .dataLength = 4
+        },
+        {
+            .dataOrig = &OD_RAM.x6001_sensor2Data.thermopile1_Therm,
+            .subIndex = 9,
+            .attribute = ODA_RPDO | ODA_MB,
+            .dataLength = 4
+        },
+        {
+            .dataOrig = &OD_RAM.x6001_sensor2Data.thermopile2_Therm,
+            .subIndex = 10,
+            .attribute = ODA_RPDO | ODA_MB,
+            .dataLength = 4
         }
     },
     .o_6003_BMEData = {
@@ -904,6 +1045,12 @@ static CO_PROGMEM ODObjs_t ODObjs = {
             .subIndex = 5,
             .attribute = ODA_RPDO,
             .dataLength = 1
+        },
+        {
+            .dataOrig = &OD_RAM.x6003_BMEData.airTemp,
+            .subIndex = 6,
+            .attribute = ODA_RPDO | ODA_MB,
+            .dataLength = 4
         }
     }
 };
@@ -936,6 +1083,8 @@ static OD_ATTR_OD OD_entry_t ODList[] = {
     {0x1408, 0x03, ODT_REC, &ODObjs.o_1408_RPDOCommunicationParameter, NULL},
     {0x1409, 0x03, ODT_REC, &ODObjs.o_1409_RPDOCommunicationParameter, NULL},
     {0x140A, 0x03, ODT_REC, &ODObjs.o_140A_RPDOCommunicationParameter, NULL},
+    {0x140B, 0x03, ODT_REC, &ODObjs.o_140B_RPDOCommunicationParameter, NULL},
+    {0x140C, 0x03, ODT_REC, &ODObjs.o_140C_RPDOCommunicationParameter, NULL},
     {0x1600, 0x03, ODT_REC, &ODObjs.o_1600_RPDOMappingParameter, NULL},
     {0x1601, 0x03, ODT_REC, &ODObjs.o_1601_RPDOMappingParameter, NULL},
     {0x1602, 0x03, ODT_REC, &ODObjs.o_1602_RPDOMappingParameter, NULL},
@@ -946,10 +1095,12 @@ static OD_ATTR_OD OD_entry_t ODList[] = {
     {0x1607, 0x03, ODT_REC, &ODObjs.o_1607_RPDOMappingParameter, NULL},
     {0x1608, 0x03, ODT_REC, &ODObjs.o_1608_RPDOMappingParameter, NULL},
     {0x1609, 0x03, ODT_REC, &ODObjs.o_1609_RPDOMappingParameter, NULL},
-    {0x160A, 0x02, ODT_REC, &ODObjs.o_160A_RPDOMappingParameter, NULL},
-    {0x6000, 0x09, ODT_REC, &ODObjs.o_6000_sensor1Data, NULL},
-    {0x6001, 0x09, ODT_REC, &ODObjs.o_6001_sensor2Data, NULL},
-    {0x6003, 0x06, ODT_REC, &ODObjs.o_6003_BMEData, NULL},
+    {0x160A, 0x03, ODT_REC, &ODObjs.o_160A_RPDOMappingParameter, NULL},
+    {0x160B, 0x03, ODT_REC, &ODObjs.o_160B_RPDOMappingParameter, NULL},
+    {0x160C, 0x03, ODT_REC, &ODObjs.o_160C_RPDOMappingParameter, NULL},
+    {0x6000, 0x0B, ODT_REC, &ODObjs.o_6000_sensor1Data, NULL},
+    {0x6001, 0x0B, ODT_REC, &ODObjs.o_6001_sensor2Data, NULL},
+    {0x6003, 0x07, ODT_REC, &ODObjs.o_6003_BMEData, NULL},
     {0x0000, 0x00, 0, NULL, NULL}
 };
 

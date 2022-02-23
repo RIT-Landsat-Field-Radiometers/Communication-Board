@@ -29,7 +29,7 @@
 /* Private macros ------------------------------------------------------------*/
 #if (USE_TRACE_SYSCTRL == 1U)
 #if (USE_PRINTF == 0U)
-#include "trace_interface.h"
+#include "Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Inc/trace_interface.h"
 #define PRINT_FORCE(format, args...) TRACE_PRINT_FORCE(DBG_CHAN_ATCMD, DBL_LVL_P0, format "\n\r", ## args)
 #define PRINT_INFO(format, args...) TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_P0, "SysCtrl_BG96:" format "\n\r", ## args)
 #define PRINT_ERR(format, args...)  TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_ERR,\

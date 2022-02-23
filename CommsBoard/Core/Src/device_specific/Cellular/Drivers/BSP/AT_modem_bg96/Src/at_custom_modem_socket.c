@@ -39,7 +39,7 @@
 /* Private macros ------------------------------------------------------------*/
 #if (USE_TRACE_ATCUSTOM_SPECIFIC == 1U)
 #if (USE_PRINTF == 0U)
-#include "trace_interface.h"
+#include "Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Inc/trace_interface.h"
 #define PRINT_INFO(format, args...) TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_P0, "BG96:" format "\n\r", ## args)
 #define PRINT_DBG(format, args...)  TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_P1, "BG96:" format "\n\r", ## args)
 #define PRINT_API(format, args...)  TRACE_PRINT(DBG_CHAN_ATCMD, DBL_LVL_P2, "BG96 API:" format "\n\r", ## args)

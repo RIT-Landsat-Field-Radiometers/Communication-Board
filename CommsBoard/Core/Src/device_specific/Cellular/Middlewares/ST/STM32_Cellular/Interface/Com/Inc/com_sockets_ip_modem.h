@@ -32,10 +32,43 @@ extern "C" {
 
 #include "Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Inc/com_common.h"
 #include "Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Inc/com_sockets_addr_compat.h"
+#include "Cellular/Middlewares/ST/STM32_Cellular/Core/Rtosal/Inc/rtosal.h"
 
 /* Exported constants --------------------------------------------------------*/
 
 /* Exported types ------------------------------------------------------------*/
+
+typedef enum
+{
+  COM_SOCKET_INVALID = 0,
+  COM_SOCKET_CREATING,
+  COM_SOCKET_CREATED,
+  COM_SOCKET_CONNECTED,
+  COM_SOCKET_SENDING,
+  COM_SOCKET_WAITING_RSP,
+  COM_SOCKET_WAITING_FROM,
+  COM_SOCKET_CLOSING
+} com_socket_state_t;
+
+typedef struct _socket_desc_t
+{
+  com_socket_state_t    state;       /* socket state */
+  bool                  local;       /*   internal id - e.g for ping
+                                       or external id - e.g modem    */
+  bool                  closing;     /* close recv from remote  */
+  uint8_t               type;        /* Socket Type TCP/UDP/RAW */
+  int32_t               error;       /* last command status     */
+  int32_t               id;          /* identifier */
+  uint16_t              local_port;  /* local port */
+  uint16_t              remote_port; /* remote port */
+  com_ip_addr_t         remote_addr; /* remote addr */
+  uint32_t              snd_timeout; /* timeout for send cmd    */
+  uint32_t              rcv_timeout; /* timeout for receive cmd */
+  osMessageQId          queue;       /* message queue for URC   */
+  com_ping_rsp_t        *rsp;
+  struct _socket_desc_t *next;       /* chained list            */
+} socket_desc_t;
+
 
 /* External variables --------------------------------------------------------*/
 

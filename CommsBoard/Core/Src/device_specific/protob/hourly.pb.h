@@ -3,7 +3,7 @@
 
 #ifndef PB_HOURLY_PB_H_INCLUDED
 #define PB_HOURLY_PB_H_INCLUDED
-#include "./pb.h"
+#include "pb.h"
 
 #if PB_PROTO_HEADER_VERSION != 40
 #error Regenerate this file with the current version of nanopb generator.
@@ -38,6 +38,8 @@ typedef struct _HourlyData_EnvironmentalBoard {
     HourlyData_readings pressure; 
     pb_size_t rain_count;
     bool *rain; 
+    bool has_airTemperature;
+    HourlyData_readings airTemperature; 
 } HourlyData_EnvironmentalBoard;
 
 typedef struct _HourlyData_SensorBoard { 
@@ -45,6 +47,8 @@ typedef struct _HourlyData_SensorBoard {
     uint32_t fwVersion; 
     pb_size_t channels_count;
     struct _HourlyData_readings *channels; 
+    pb_size_t internalTemps_count;
+    struct _HourlyData_readings *internalTemps; 
 } HourlyData_SensorBoard;
 
 typedef struct _TimeStamp_date { 
@@ -76,6 +80,7 @@ typedef struct _HourlyData {
     bool has_dataStart;
     TimeStamp dataStart; 
     uint64_t duration; 
+    uint32_t averagingTime; 
 } HourlyData;
 
 typedef struct _HourlyData_SystemEvents { 
@@ -99,17 +104,17 @@ extern "C" {
 /* Initializer values for message structs */
 #define TimeStamp_init_default                   {0, {TimeStamp_date_init_default}}
 #define TimeStamp_date_init_default              {0, 0, 0, 0, 0, 0}
-#define HourlyData_init_default                  {0, 0, 0, NULL, false, HourlyData_EnvironmentalBoard_init_default, 0, NULL, false, TimeStamp_init_default, 0}
+#define HourlyData_init_default                  {0, 0, 0, NULL, false, HourlyData_EnvironmentalBoard_init_default, 0, NULL, false, TimeStamp_init_default, 0, 0}
 #define HourlyData_readings_init_default         {0, NULL}
-#define HourlyData_SensorBoard_init_default      {0, 0, 0, NULL}
-#define HourlyData_EnvironmentalBoard_init_default {0, 0, false, HourlyData_readings_init_default, false, HourlyData_readings_init_default, false, HourlyData_readings_init_default, false, HourlyData_readings_init_default, 0, NULL}
+#define HourlyData_SensorBoard_init_default      {0, 0, 0, NULL, 0, NULL}
+#define HourlyData_EnvironmentalBoard_init_default {0, 0, false, HourlyData_readings_init_default, false, HourlyData_readings_init_default, false, HourlyData_readings_init_default, false, HourlyData_readings_init_default, 0, NULL, false, HourlyData_readings_init_default}
 #define HourlyData_SystemEvents_init_default     {_HourlyData_SystemEvents_EventType_MIN, NULL, false, TimeStamp_init_default}
 #define TimeStamp_init_zero                      {0, {TimeStamp_date_init_zero}}
 #define TimeStamp_date_init_zero                 {0, 0, 0, 0, 0, 0}
-#define HourlyData_init_zero                     {0, 0, 0, NULL, false, HourlyData_EnvironmentalBoard_init_zero, 0, NULL, false, TimeStamp_init_zero, 0}
+#define HourlyData_init_zero                     {0, 0, 0, NULL, false, HourlyData_EnvironmentalBoard_init_zero, 0, NULL, false, TimeStamp_init_zero, 0, 0}
 #define HourlyData_readings_init_zero            {0, NULL}
-#define HourlyData_SensorBoard_init_zero         {0, 0, 0, NULL}
-#define HourlyData_EnvironmentalBoard_init_zero  {0, 0, false, HourlyData_readings_init_zero, false, HourlyData_readings_init_zero, false, HourlyData_readings_init_zero, false, HourlyData_readings_init_zero, 0, NULL}
+#define HourlyData_SensorBoard_init_zero         {0, 0, 0, NULL, 0, NULL}
+#define HourlyData_EnvironmentalBoard_init_zero  {0, 0, false, HourlyData_readings_init_zero, false, HourlyData_readings_init_zero, false, HourlyData_readings_init_zero, false, HourlyData_readings_init_zero, 0, NULL, false, HourlyData_readings_init_zero}
 #define HourlyData_SystemEvents_init_zero        {_HourlyData_SystemEvents_EventType_MIN, NULL, false, TimeStamp_init_zero}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -121,9 +126,11 @@ extern "C" {
 #define HourlyData_EnvironmentalBoard_humidity_tag 5
 #define HourlyData_EnvironmentalBoard_pressure_tag 6
 #define HourlyData_EnvironmentalBoard_rain_tag   7
+#define HourlyData_EnvironmentalBoard_airTemperature_tag 8
 #define HourlyData_SensorBoard_serialNumber_tag  1
 #define HourlyData_SensorBoard_fwVersion_tag     2
 #define HourlyData_SensorBoard_channels_tag      3
+#define HourlyData_SensorBoard_internalTemps_tag 4
 #define TimeStamp_date_year_tag                  1
 #define TimeStamp_date_month_tag                 2
 #define TimeStamp_date_day_tag                   3
@@ -139,6 +146,7 @@ extern "C" {
 #define HourlyData_events_tag                    5
 #define HourlyData_dataStart_tag                 6
 #define HourlyData_duration_tag                  7
+#define HourlyData_averagingTime_tag             8
 #define HourlyData_SystemEvents_type_tag         1
 #define HourlyData_SystemEvents_details_tag      2
 #define HourlyData_SystemEvents_time_tag         3
@@ -168,7 +176,8 @@ X(a, POINTER,  REPEATED, MESSAGE,  sensors,           3) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  bmeBoard,          4) \
 X(a, POINTER,  REPEATED, MESSAGE,  events,            5) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  dataStart,         6) \
-X(a, STATIC,   SINGULAR, UINT64,   duration,          7)
+X(a, STATIC,   SINGULAR, UINT64,   duration,          7) \
+X(a, STATIC,   SINGULAR, UINT32,   averagingTime,     8)
 #define HourlyData_CALLBACK NULL
 #define HourlyData_DEFAULT NULL
 #define HourlyData_sensors_MSGTYPE HourlyData_SensorBoard
@@ -184,10 +193,12 @@ X(a, POINTER,  REPEATED, FLOAT,    values,            1)
 #define HourlyData_SensorBoard_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, FIXED64,  serialNumber,      1) \
 X(a, STATIC,   SINGULAR, UINT32,   fwVersion,         2) \
-X(a, POINTER,  REPEATED, MESSAGE,  channels,          3)
+X(a, POINTER,  REPEATED, MESSAGE,  channels,          3) \
+X(a, POINTER,  REPEATED, MESSAGE,  internalTemps,     4)
 #define HourlyData_SensorBoard_CALLBACK NULL
 #define HourlyData_SensorBoard_DEFAULT NULL
 #define HourlyData_SensorBoard_channels_MSGTYPE HourlyData_readings
+#define HourlyData_SensorBoard_internalTemps_MSGTYPE HourlyData_readings
 
 #define HourlyData_EnvironmentalBoard_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, FIXED64,  serialNumber,      1) \
@@ -196,13 +207,15 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  windSpeed,         3) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  windDirection,     4) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  humidity,          5) \
 X(a, STATIC,   OPTIONAL, MESSAGE,  pressure,          6) \
-X(a, POINTER,  REPEATED, BOOL,     rain,              7)
+X(a, POINTER,  REPEATED, BOOL,     rain,              7) \
+X(a, STATIC,   OPTIONAL, MESSAGE,  airTemperature,    8)
 #define HourlyData_EnvironmentalBoard_CALLBACK NULL
 #define HourlyData_EnvironmentalBoard_DEFAULT NULL
 #define HourlyData_EnvironmentalBoard_windSpeed_MSGTYPE HourlyData_readings
 #define HourlyData_EnvironmentalBoard_windDirection_MSGTYPE HourlyData_readings
 #define HourlyData_EnvironmentalBoard_humidity_MSGTYPE HourlyData_readings
 #define HourlyData_EnvironmentalBoard_pressure_MSGTYPE HourlyData_readings
+#define HourlyData_EnvironmentalBoard_airTemperature_MSGTYPE HourlyData_readings
 
 #define HourlyData_SystemEvents_FIELDLIST(X, a) \
 X(a, STATIC,   SINGULAR, UENUM,    type,              1) \

@@ -35,7 +35,7 @@
 
 #if (USE_TRACE_IPC == 1U)
 #if (USE_PRINTF == 0U)
-#include "trace_interface.h"
+#include "Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Inc/trace_interface.h"
 #define PRINT_INFO(format, args...) TRACE_PRINT(DBG_CHAN_IPC, DBL_LVL_P0, "IPC:" format "\n\r", ## args)
 #define PRINT_DBG(format, args...)  TRACE_PRINT(DBG_CHAN_IPC, DBL_LVL_P1, "IPC:" format "\n\r", ## args)
 #define PRINT_ERR(format, args...)  TRACE_PRINT(DBG_CHAN_IPC, DBL_LVL_ERR, "IPC ERROR:" format "\n\r", ## args)

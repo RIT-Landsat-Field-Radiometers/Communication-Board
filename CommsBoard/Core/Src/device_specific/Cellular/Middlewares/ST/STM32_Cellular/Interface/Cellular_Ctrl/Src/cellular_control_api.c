@@ -45,7 +45,7 @@
 
 #if (USE_PRINTF == 0U)
 #include "Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Inc/trace_interface.h" /* needed to call traceIF_init() and traceIF_start() */
-#define PRINT_FORCE(format, args...)   0;//TRACE_PRINT_FORCE(DBG_CHAN_MAIN, DBL_LVL_P0, "" format "\n\r", ## args)
+#define PRINT_FORCE(format, args...)  /* 0;//*/TRACE_PRINT_FORCE(DBG_CHAN_MAIN, DBL_LVL_P0, "" format "\n\r", ## args)
 #else
 #include <stdio.h>
 #define PRINT_FORCE(format, args...)   0;//(void)printf("" format "\n\r", ## args);

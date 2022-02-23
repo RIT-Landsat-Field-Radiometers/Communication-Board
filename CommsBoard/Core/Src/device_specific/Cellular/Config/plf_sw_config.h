@@ -110,10 +110,10 @@ extern "C" {
 /* Trace channels: ITM, UART or Printf */
 #define TRACE_IF_TRACES_ITM                 (0U) /* trace_interface module send traces to ITM */
 #define TRACE_IF_TRACES_UART                (0U) /* trace_interface module send traces to UART */
-#define USE_PRINTF                          (1U) /* if set to 1, use printf instead of trace_interface module */
+#define USE_PRINTF                          (0U) /* if set to 1, use printf instead of trace_interface module */
 
 /* Trace masks allowed */
-#define TRACE_IF_MASK             (uint16_t)(0U) /* no trace except the one using PRINT_FORCE */
+#define TRACE_IF_MASK             /*(uint16_t)(DBL_LVL_P0 | DBL_LVL_P1 | DBL_LVL_P2 | DBL_LVL_WARN | DBL_LVL_ERR)/*/(uint16_t)(0U) /* no trace except the one using PRINT_FORCE */
 
 /* Trace module flags */
 #define USE_TRACE_SYSCTRL                   (0U)

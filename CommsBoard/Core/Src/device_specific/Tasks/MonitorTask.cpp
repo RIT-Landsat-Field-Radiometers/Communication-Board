@@ -52,11 +52,11 @@ void MonitorTask::MonitorTaskBody(void *arg)
 		uint64_t newDiff = allocCount - freeCount;
 		if(lastDiff != newDiff)
 		{
-			mlog.debug(
-			"Free Memory: %d bytes (%.1f%%), Min Free Memory: %d bytes (%.1f%%)\tAllocs: %lld, Frees: %lld, diff: %lld",
-			curFree, (curFree * 100.0) / maxMem, minFree,
-			(minFree * 100.0) / maxMem, allocCount, freeCount,
-			allocCount - freeCount);
+//			mlog.debug(
+//			"Free Memory: %d bytes (%.1f%%), Min Free Memory: %d bytes (%.1f%%)\tAllocs: %lld, Frees: %lld, diff: %lld",
+//			curFree, (curFree * 100.0) / maxMem, minFree,
+//			(minFree * 100.0) / maxMem, allocCount, freeCount,
+//			allocCount - freeCount);
 			lastDiff = newDiff;
 		}
 

@@ -14,15 +14,15 @@
         Project File: comms.xdd
         File Version: 1
 
-        Created:      9/30/2021 2:21:42 PM
+        Created:      9/30/2021 1:21:42 PM
         Created By:   
-        Modified:     10/5/2021 2:45:52 PM
+        Modified:     2/4/2022 11:09:46 AM
         Modified By:  
 
     Device Info:
         Vendor Name:  
         Vendor ID:    
-        Product Name: New Product
+        Product Name: Comms
         Product ID:   
 
         Description:  
@@ -41,7 +41,7 @@
 #define OD_CNT_EM_PROD 1
 #define OD_CNT_HB_CONS 1
 #define OD_CNT_HB_PROD 1
-#define OD_CNT_RPDO 11
+#define OD_CNT_RPDO 13
 
 
 /*******************************************************************************
@@ -128,6 +128,16 @@ typedef struct {
         uint8_t transmissionType;
     } x140A_RPDOCommunicationParameter;
     struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x140B_RPDOCommunicationParameter;
+    struct {
+        uint8_t maxSub_index;
+        uint32_t COB_IDUsedByRPDO;
+        uint8_t transmissionType;
+    } x140C_RPDOCommunicationParameter;
+    struct {
         uint8_t numberOfMappedObjects;
         uint32_t mappedObject_1;
         uint32_t mappedObject_2;
@@ -180,7 +190,18 @@ typedef struct {
     struct {
         uint8_t numberOfMappedObjects;
         uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
     } x160A_RPDOMappingParameter;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
+    } x160B_RPDOMappingParameter;
+    struct {
+        uint8_t numberOfMappedObjects;
+        uint32_t mappedObject_1;
+        uint32_t mappedObject_2;
+    } x160C_RPDOMappingParameter;
 } OD_PERSIST_COMM_t;
 
 typedef struct {
@@ -195,6 +216,8 @@ typedef struct {
         float32_t thermopile2_ChannelB;
         float32_t thermopile2_ChannelC;
         float32_t thermopile2_ChannelD;
+        float32_t thermopile1_Therm;
+        float32_t thermopile2_Therm;
     } x6000_sensor1Data;
     struct {
         uint8_t highestSub_indexSupported;
@@ -206,6 +229,8 @@ typedef struct {
         float32_t thermopile2_ChannelB;
         float32_t thermopile2_ChannelC;
         float32_t thermopile2_ChannelD;
+        float32_t thermopile1_Therm;
+        float32_t thermopile2_Therm;
     } x6001_sensor2Data;
     struct {
         uint8_t highestSub_indexSupported;
@@ -214,6 +239,7 @@ typedef struct {
         float32_t windSpeed;
         float32_t windDirection;
         uint8_t rainDetection;
+        float32_t airTemp;
     } x6003_BMEData;
 } OD_RAM_t;
 
@@ -259,20 +285,24 @@ extern OD_ATTR_OD OD_t *OD;
 #define OD_ENTRY_H1408 &OD->list[20]
 #define OD_ENTRY_H1409 &OD->list[21]
 #define OD_ENTRY_H140A &OD->list[22]
-#define OD_ENTRY_H1600 &OD->list[23]
-#define OD_ENTRY_H1601 &OD->list[24]
-#define OD_ENTRY_H1602 &OD->list[25]
-#define OD_ENTRY_H1603 &OD->list[26]
-#define OD_ENTRY_H1604 &OD->list[27]
-#define OD_ENTRY_H1605 &OD->list[28]
-#define OD_ENTRY_H1606 &OD->list[29]
-#define OD_ENTRY_H1607 &OD->list[30]
-#define OD_ENTRY_H1608 &OD->list[31]
-#define OD_ENTRY_H1609 &OD->list[32]
-#define OD_ENTRY_H160A &OD->list[33]
-#define OD_ENTRY_H6000 &OD->list[34]
-#define OD_ENTRY_H6001 &OD->list[35]
-#define OD_ENTRY_H6003 &OD->list[36]
+#define OD_ENTRY_H140B &OD->list[23]
+#define OD_ENTRY_H140C &OD->list[24]
+#define OD_ENTRY_H1600 &OD->list[25]
+#define OD_ENTRY_H1601 &OD->list[26]
+#define OD_ENTRY_H1602 &OD->list[27]
+#define OD_ENTRY_H1603 &OD->list[28]
+#define OD_ENTRY_H1604 &OD->list[29]
+#define OD_ENTRY_H1605 &OD->list[30]
+#define OD_ENTRY_H1606 &OD->list[31]
+#define OD_ENTRY_H1607 &OD->list[32]
+#define OD_ENTRY_H1608 &OD->list[33]
+#define OD_ENTRY_H1609 &OD->list[34]
+#define OD_ENTRY_H160A &OD->list[35]
+#define OD_ENTRY_H160B &OD->list[36]
+#define OD_ENTRY_H160C &OD->list[37]
+#define OD_ENTRY_H6000 &OD->list[38]
+#define OD_ENTRY_H6001 &OD->list[39]
+#define OD_ENTRY_H6003 &OD->list[40]
 
 
 /*******************************************************************************
@@ -301,20 +331,24 @@ extern OD_ATTR_OD OD_t *OD;
 #define OD_ENTRY_H1408_RPDOCommunicationParameter &OD->list[20]
 #define OD_ENTRY_H1409_RPDOCommunicationParameter &OD->list[21]
 #define OD_ENTRY_H140A_RPDOCommunicationParameter &OD->list[22]
-#define OD_ENTRY_H1600_RPDOMappingParameter &OD->list[23]
-#define OD_ENTRY_H1601_RPDOMappingParameter &OD->list[24]
-#define OD_ENTRY_H1602_RPDOMappingParameter &OD->list[25]
-#define OD_ENTRY_H1603_RPDOMappingParameter &OD->list[26]
-#define OD_ENTRY_H1604_RPDOMappingParameter &OD->list[27]
-#define OD_ENTRY_H1605_RPDOMappingParameter &OD->list[28]
-#define OD_ENTRY_H1606_RPDOMappingParameter &OD->list[29]
-#define OD_ENTRY_H1607_RPDOMappingParameter &OD->list[30]
-#define OD_ENTRY_H1608_RPDOMappingParameter &OD->list[31]
-#define OD_ENTRY_H1609_RPDOMappingParameter &OD->list[32]
-#define OD_ENTRY_H160A_RPDOMappingParameter &OD->list[33]
-#define OD_ENTRY_H6000_sensor1Data &OD->list[34]
-#define OD_ENTRY_H6001_sensor2Data &OD->list[35]
-#define OD_ENTRY_H6003_BMEData &OD->list[36]
+#define OD_ENTRY_H140B_RPDOCommunicationParameter &OD->list[23]
+#define OD_ENTRY_H140C_RPDOCommunicationParameter &OD->list[24]
+#define OD_ENTRY_H1600_RPDOMappingParameter &OD->list[25]
+#define OD_ENTRY_H1601_RPDOMappingParameter &OD->list[26]
+#define OD_ENTRY_H1602_RPDOMappingParameter &OD->list[27]
+#define OD_ENTRY_H1603_RPDOMappingParameter &OD->list[28]
+#define OD_ENTRY_H1604_RPDOMappingParameter &OD->list[29]
+#define OD_ENTRY_H1605_RPDOMappingParameter &OD->list[30]
+#define OD_ENTRY_H1606_RPDOMappingParameter &OD->list[31]
+#define OD_ENTRY_H1607_RPDOMappingParameter &OD->list[32]
+#define OD_ENTRY_H1608_RPDOMappingParameter &OD->list[33]
+#define OD_ENTRY_H1609_RPDOMappingParameter &OD->list[34]
+#define OD_ENTRY_H160A_RPDOMappingParameter &OD->list[35]
+#define OD_ENTRY_H160B_RPDOMappingParameter &OD->list[36]
+#define OD_ENTRY_H160C_RPDOMappingParameter &OD->list[37]
+#define OD_ENTRY_H6000_sensor1Data &OD->list[38]
+#define OD_ENTRY_H6001_sensor2Data &OD->list[39]
+#define OD_ENTRY_H6003_BMEData &OD->list[40]
 
 
 /*******************************************************************************

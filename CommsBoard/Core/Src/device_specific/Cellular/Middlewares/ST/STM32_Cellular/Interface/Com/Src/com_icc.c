@@ -75,7 +75,7 @@ typedef struct
    ICC descriptor
  */
 
-static osMutexId ComIccMutexHandle;
+/*static */osMutexId ComIccMutexHandle;
 
 static com_icc_desc_t com_icc_desc[COM_ICC_SESSION_MAX_NB];
 

@@ -25,19 +25,30 @@ private:
 
 	std::vector<HourlyData_SensorBoard> sensors;
 	std::vector<_HourlyData_readings> readings;
+	std::vector<_HourlyData_readings> itemps;
+
+	static const uint8_t samplePeriod = 30; // Average over 30 seconds
 public:
 	typedef struct
 	{
 		std::vector<std::vector<std::vector<float>> > channels;
-		std::vector<float> hum, pres, windspd, winddir;
+		std::vector<std::vector<std::vector<float>> > itemps;
+		std::vector<float> hum, pres, windspd, winddir, airtemps;
 		std::vector<uint8_t> rain;
 		uint32_t startTime;
 
 		void initChannels(size_t sensors, size_t channels_per_sensor)
 		{
 			channels.reserve(sensors);
+			itemps.reserve(sensors);
 			for (uint8_t idx = 0; idx < sensors; idx++)
 			{
+				itemps.emplace_back();
+				itemps[idx].reserve(2); // reserve an itemp for each thermopile
+				itemps[idx].emplace_back();
+				itemps[idx].emplace_back();
+
+
 				channels.emplace_back();
 				channels[idx].reserve(channels_per_sensor);
 				for (uint8_t cidx = 0; cidx < channels_per_sensor; cidx++)
@@ -56,11 +67,17 @@ public:
 					chan.reserve(size);
 				}
 			}
+			for(auto &sensor : itemps)
+			{
+				sensor[0].reserve(size);
+				sensor[1].reserve(size);
+			}
 			hum.reserve(size);
 			pres.reserve(size);
 			windspd.reserve(size);
 			winddir.reserve(size);
 			rain.reserve(size);
+			airtemps.reserve(size);
 		}
 
 		void clearAll()
@@ -75,6 +92,13 @@ public:
 			std::vector<float>().swap(winddir);
 			channels.clear();
 			std::vector<std::vector<std::vector<float>> >().swap(channels);
+
+			itemps.clear();
+			std::vector<std::vector<std::vector<float>> >().swap(itemps);
+
+			airtemps.clear();
+			std::vector<float>().swap(airtemps);
+
 			rain.clear();
 			std::vector<uint8_t>().swap(rain);
 		}
@@ -84,6 +108,7 @@ public:
 	{
 		float t1channels[4];
 		float t2channels[4];
+		float itemps[2];
 	} SensorReadings_t;
 
 	typedef struct
@@ -93,6 +118,7 @@ public:
 		float wind_direction;
 		float wind_speed;
 		int8_t rain_detected;
+		float air_temp;
 	} EnviromentalReading_t;
 
 	DataTask();
@@ -134,6 +160,9 @@ public:
 			}
 //			OD_set_f32(sensorEntry, channel + 1, NAN, true);
 		}
+		OD_get_f32(sensorEntry, 9, &out->itemps[0], true);
+		OD_get_f32(sensorEntry, 10, &out->itemps[1], true);
+
 		return !allNAN;
 	}
 
@@ -161,6 +190,8 @@ public:
 		OD_get_i8(BMEEntry, 5, &out->rain_detected, true);
 //		OD_set_i8(BMEEntry, 5, 0xff, true);
 		allNAN &= (out->rain_detected == 0xff);
+
+		OD_get_f32(BMEEntry, 6, &out->air_temp, true);
 
 		return !allNAN;
 	}

@@ -177,8 +177,14 @@ std::function<uint8_t* (uint32_t*)> FileSystemTask::createBufferedReader(
 		std::string path)
 {
 	static FIL fin;
+	static bool opened = false;
 	FRESULT fresult;  // result
 
+	if(opened)
+	{
+		f_close(&fin);
+		opened = false;
+	}
 	fresult = f_open(&fin, path.c_str(), FA_READ);
 
 	if (fresult != FR_OK)
@@ -194,8 +200,9 @@ std::function<uint8_t* (uint32_t*)> FileSystemTask::createBufferedReader(
 			return nullptr;
 		};
 	}
+	opened = true;
 
-	return [&fin](uint32_t *size)
+	return [&fin, &opened](uint32_t *size)
 	{
 		static uint8_t buffer[512];
 		UINT read = 0;
@@ -204,8 +211,13 @@ std::function<uint8_t* (uint32_t*)> FileSystemTask::createBufferedReader(
 		if (fr != FR_OK || read < 1)
 		{
 			f_close(&fin);
+			opened = false;
 			*size = 0;
 			return (uint8_t *)  nullptr;
+		}
+		else
+		{
+//			osDelay(50); // Don't like it but want to reduce modem buffer overruns.
 		}
 
 		*size = read;
@@ -242,4 +254,52 @@ uint64_t FileSystemTask::getRemainingCapacity()
 	}
 
 	return rem; // returns number of bytes
+}
+
+#include "JSON/Parser/tiny-json.h"
+
+std::string FileSystemTask::getHostnameFromConfig()
+{
+	static const char * path = "/config/connection.json";
+
+	std::string contents;
+	auto reader = createBufferedReader(path);
+	uint32_t read = 0;
+	uint32_t totalRead = 0;
+	uint8_t * data = reader(&read);
+	while(read > 0)
+	{
+		contents += std::string((char *)data, read);
+		totalRead+= read;
+		data = reader(&read);
+	}
+
+	if(totalRead < 1)
+	{
+		// Didn't read anything
+		log->error("Failed to read connection config!");
+		contents.clear();
+		return contents;
+	}
+
+	json_t pool[16];
+	char * start =  (char *)contents.c_str(); // Json libary increments the pointer, so make a copy to the first for it to play with
+
+	json_t const* parent = json_create(start, pool, 16 );
+	if ( parent == nullptr )
+	{
+		log->error("Failed to parse connection config!");
+		contents.clear();
+		return contents;
+	}
+
+    json_t const* host = json_getProperty( parent, "host" );
+    if(host == nullptr || JSON_TEXT != json_getType( host ))
+    {
+		log->error("Could not find host in connection config!");
+		contents.clear();
+		return contents;
+    }
+
+    return std::string(json_getValue(host));
 }

@@ -25,7 +25,7 @@
 /* Private macros ------------------------------------------------------------*/
 #if (USE_TRACE_ERROR_HANDLER == 1U)
 #if (USE_PRINTF == 0U)
-#include "trace_interface.h"
+#include "Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Inc/trace_interface.h"
 #define PRINT_INFO(format, args...) TRACE_PRINT(DBG_CHAN_ERROR_HANDLER, DBL_LVL_P0, "" format "\n\r", ## args)
 #else
 #include <stdio.h>

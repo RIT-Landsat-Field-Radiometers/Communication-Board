@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "Cellular/Middlewares/ST/STM32_Cellular/Core/Rtosal/Inc/rtosal.h"
 
 #include "Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Inc/com_sockets_net_compat.h"
 #include "Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Inc/com_sockets_err_compat.h"
@@ -77,37 +76,37 @@ typedef uint16_t com_socket_msg_id_t;
 typedef uint32_t com_socket_msg_t;
 
 /* Socket State */
-typedef enum
-{
-  COM_SOCKET_INVALID = 0,
-  COM_SOCKET_CREATING,
-  COM_SOCKET_CREATED,
-  COM_SOCKET_CONNECTED,
-  COM_SOCKET_SENDING,
-  COM_SOCKET_WAITING_RSP,
-  COM_SOCKET_WAITING_FROM,
-  COM_SOCKET_CLOSING
-} com_socket_state_t;
+//typedef enum
+//{
+//  COM_SOCKET_INVALID = 0,
+//  COM_SOCKET_CREATING,
+//  COM_SOCKET_CREATED,
+//  COM_SOCKET_CONNECTED,
+//  COM_SOCKET_SENDING,
+//  COM_SOCKET_WAITING_RSP,
+//  COM_SOCKET_WAITING_FROM,
+//  COM_SOCKET_CLOSING
+//} com_socket_state_t;
 
 /* Socket descriptor data structure */
-typedef struct _socket_desc_t
-{
-  com_socket_state_t    state;       /* socket state */
-  bool                  local;       /*   internal id - e.g for ping
-                                       or external id - e.g modem    */
-  bool                  closing;     /* close recv from remote  */
-  uint8_t               type;        /* Socket Type TCP/UDP/RAW */
-  int32_t               error;       /* last command status     */
-  int32_t               id;          /* identifier */
-  uint16_t              local_port;  /* local port */
-  uint16_t              remote_port; /* remote port */
-  com_ip_addr_t         remote_addr; /* remote addr */
-  uint32_t              snd_timeout; /* timeout for send cmd    */
-  uint32_t              rcv_timeout; /* timeout for receive cmd */
-  osMessageQId          queue;       /* message queue for URC   */
-  com_ping_rsp_t        *rsp;
-  struct _socket_desc_t *next;       /* chained list            */
-} socket_desc_t;
+//typedef struct _socket_desc_t
+//{
+//  com_socket_state_t    state;       /* socket state */
+//  bool                  local;       /*   internal id - e.g for ping
+//                                       or external id - e.g modem    */
+//  bool                  closing;     /* close recv from remote  */
+//  uint8_t               type;        /* Socket Type TCP/UDP/RAW */
+//  int32_t               error;       /* last command status     */
+//  int32_t               id;          /* identifier */
+//  uint16_t              local_port;  /* local port */
+//  uint16_t              remote_port; /* remote port */
+//  com_ip_addr_t         remote_addr; /* remote addr */
+//  uint32_t              snd_timeout; /* timeout for send cmd    */
+//  uint32_t              rcv_timeout; /* timeout for receive cmd */
+//  osMessageQId          queue;       /* message queue for URC   */
+//  com_ping_rsp_t        *rsp;
+//  struct _socket_desc_t *next;       /* chained list            */
+//} socket_desc_t;
 
 typedef struct
 {
@@ -169,9 +168,9 @@ socket_msg_t
 /* Mutex to protect access to :
    socket descriptor list,
    socket local_id array */
-static osMutexId ComSocketsMutexHandle;
+osMutexId ComSocketsMutexHandle;
 
-static socket_desc_t *socket_desc_list; /* Socket descriptor list */
+/*static */socket_desc_t *socket_desc_list; /* Socket descriptor list */
 
 /* Provide a socket local id - Used for Ping */
 static bool socket_local_id[COM_SOCKET_LOCAL_ID_NB]; /* false : unused, true  : in use  */
@@ -1977,6 +1976,12 @@ int32_t com_send_ip_modem(int32_t sock,
             else
             {
               is_network_up = com_ip_modem_is_network_up();
+
+
+
+              // create a retry-limit, with delay, in case of network intermittance
+              uint8_t failCount = 0;
+
               /* Send all data of a big buffer - Whatever the size */
               while ((length_send != (uint32_t)len)
                      && (socket_desc->closing == false)
@@ -1999,8 +2004,20 @@ int32_t com_send_ip_modem(int32_t sock,
                 }
                 else
                 {
-                  socket_desc->state = COM_SOCKET_CONNECTED;
+//                  socket_desc->state = COM_SOCKET_CONNECTED;
                   PRINT_ERR("snd data NOK at low level")
+
+                  if(failCount < 3)
+                  {
+                	  // Try again, after delay (send buffer in modem probably full)
+                	  failCount++;
+                	  rtosalDelay(100);
+                  }
+                  else
+                  {
+                      length_send = COM_SOCKETS_ERR_GENERAL;
+                      break;
+                  }
                 }
                 com_ip_modem_idlemode_request(false);
               }

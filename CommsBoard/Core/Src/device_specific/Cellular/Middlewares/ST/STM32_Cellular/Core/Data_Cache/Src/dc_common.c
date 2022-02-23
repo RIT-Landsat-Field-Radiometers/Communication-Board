@@ -39,7 +39,7 @@ typedef struct
 
 #if (USE_TRACE_CELLULAR_SERVICE == 1U)
 #if (USE_PRINTF == 0U)
-#include "trace_interface.h"
+#include "Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Inc/trace_interface.h"
 #define PRINT_INFO(format, args...) TRACE_PRINT(DBG_CHAN_MAIN, DBL_LVL_P0, "DataCache:" format "\n\r", ## args)
 #define PRINT_DBG(format, args...)  TRACE_PRINT(DBG_CHAN_MAIN, DBL_LVL_P1, "DataCache:" format "\n\r", ## args)
 #define PRINT_API(format, args...)  TRACE_PRINT(DBG_CHAN_MAIN, DBL_LVL_P2, "DataCache API:" format "\n\r", ## args)
@@ -85,7 +85,7 @@ void dc_com_register_gen_event_cb_common(dc_com_db_t *p_dc_db,
 /* Private variables ---------------------------------------------------------*/
 
 /* Mutex to avoid  Data Cache concurrent access */
-static osMutexId dc_common_mutex;
+/*static */osMutexId dc_common_mutex;
 
 /* Functions Definition ------------------------------------------------------*/
 

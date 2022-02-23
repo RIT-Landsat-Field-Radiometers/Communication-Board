@@ -32,8 +32,8 @@
 /* Private macros ------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-static osMutexId CellularServiceMutexHandle;
-static osMutexId CellularServiceGeneralMutexHandle;
+/*static */osMutexId CellularServiceMutexHandle;
+/*static */osMutexId CellularServiceGeneralMutexHandle;
 
 /* Global variables ----------------------------------------------------------*/
 

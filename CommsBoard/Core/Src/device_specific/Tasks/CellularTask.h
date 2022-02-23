@@ -14,9 +14,14 @@ class CellularTask: public TaskInterface
 {
 private:
 	bool connected = false;
+	std::string host;
+
+	int32_t sockfd;
+
+	osTimerId_t watchdogTimer;
 
 public:
-	CellularTask();
+	CellularTask(std::string hostname);
 	~CellularTask();
 
 	bool start() override;

@@ -16,6 +16,23 @@ DataTask::DataTask()
 
 }
 
+
+float averageArr(float * data, int length)
+{
+	float total = 0.0;
+	int divisor = 0;
+	for(int i = 0; i < length; i++)
+	{
+		if(data[i] != NAN)
+		{
+			total += data[i];
+			divisor++;
+		}
+	}
+	return (divisor < 1) ? NAN : (total / divisor);
+}
+
+
 void DataTask::SamplingTask(void *arg)
 {
 	if (arg == nullptr)
@@ -32,9 +49,23 @@ void DataTask::SamplingTask(void *arg)
 	EnviromentalReading_t enviromental;
 
 	_this->banks[0].initChannels(2, 8);
-	_this->banks[0].reserveAll(3600);
+	_this->banks[0].reserveAll(3600 / samplePeriod + 10);
 	osEventFlagsClear(_this->taskEvents, 0xFFFFFFFF);
 	uint32_t lastSample = HAL_GetTick();
+
+	float channelsSamples[2][8][32];
+	float internalTemps[2][2][32];
+
+	float airTemps[32];
+	float windSpdSamples[32];
+	float windDirSamples[32];
+	float humSamples[32];
+	float pressSamples[32];
+	int8_t rainSamples[32];
+
+	uint8_t sampleCount = 0;
+
+
 	for (;;)
 	{
 		int32_t resp = osEventFlagsWait(_this->taskEvents, 0x01,
@@ -58,39 +89,89 @@ void DataTask::SamplingTask(void *arg)
 			resp = osEventFlagsWait(_this->taskEvents, 0x04, osFlagsWaitAll, 0);
 			if ((resp > 0) && ((resp & 0x07) == 0x04))
 			{
-				bank->reserveAll(62 * 60);
+				bank->reserveAll(3600 / samplePeriod + 10);
 			}
 
 			readSensor(&sensors[0], 1);
 			readSensor(&sensors[1], 2);
 			readEnviromental(&enviromental);
 
-			// Fill in the sensor data.....
-			for (int sIdx = 0; sIdx < 2; sIdx++)
+			if(sampleCount < samplePeriod)
 			{
-				for (int cIdx = 0; cIdx < 8; cIdx++)
+				for (int sIdx = 0; sIdx < 2; sIdx++)
 				{
-					if (cIdx < 4)
+					for (int cIdx = 0; cIdx < 8; cIdx++)
 					{
-						bank->channels[sIdx][cIdx].emplace_back(
-								sensors[sIdx].t1channels[cIdx]);
+						if (cIdx < 4)
+						{
+							channelsSamples[sIdx][cIdx][sampleCount] = sensors[sIdx].t1channels[cIdx];
+						}
+						else
+						{
+							channelsSamples[sIdx][cIdx][sampleCount] = sensors[sIdx].t2channels[cIdx - 4];
+						}
 					}
-					else
+					internalTemps[sIdx][0][sampleCount] = sensors[sIdx].itemps[0];
+					internalTemps[sIdx][1][sampleCount] = sensors[sIdx].itemps[1];
+				}
+				airTemps[sampleCount] = enviromental.air_temp;
+				windSpdSamples[sampleCount] = enviromental.wind_speed;
+				windDirSamples[sampleCount] = enviromental.wind_direction;
+				humSamples[sampleCount] = enviromental.humidity;
+				pressSamples[sampleCount] = enviromental.pressure;
+				rainSamples[sampleCount] = enviromental.rain_detected;
+				sampleCount++;
+			}
+			else
+			{
+				float average;
+				// Fill in the sensor data.....
+				for (int sIdx = 0; sIdx < 2; sIdx++)
+				{
+					average = averageArr(internalTemps[sIdx][0], sampleCount);
+					bank->itemps[sIdx][0].emplace_back(average);
+
+					average = averageArr(internalTemps[sIdx][1], sampleCount);
+					bank->itemps[sIdx][1].emplace_back(average);
+
+					for (int cIdx = 0; cIdx < 8; cIdx++)
 					{
-						bank->channels[sIdx][cIdx].emplace_back(
-								sensors[sIdx].t2channels[cIdx - 4]);
+						average = averageArr(channelsSamples[sIdx][cIdx], sampleCount);
+						bank->channels[sIdx][cIdx].emplace_back(average);
 					}
 				}
+
+				average = averageArr(humSamples, sampleCount);
+				bank->hum.emplace_back(average);
+
+				average = averageArr(pressSamples, sampleCount);
+				bank->pres.emplace_back(average);
+
+				average = averageArr(windSpdSamples, sampleCount);
+				bank->windspd.emplace_back(average);
+
+				average = averageArr(windDirSamples, sampleCount);
+				bank->winddir.emplace_back(average);
+
+				average = averageArr(airTemps, sampleCount);
+				bank->airtemps.emplace_back(average);
+
+				uint32_t rainTotal = 0;
+				uint8_t divisor = 0;
+				for(int i = 0; i < sampleCount; i++)
+				{
+					if(rainSamples[i] != 0xff)
+					{
+						rainTotal += rainSamples[i];
+						divisor += 1;
+					}
+				}
+				uint8_t rainAverage = (divisor < 1) ? 0 : (rainTotal / 2) > divisor;
+				bank->rain.emplace_back(rainAverage);
+
+				sampleCount = 0; // reset it
 			}
 
-			// Fill in the environmental data.....
-
-			bank->hum.emplace_back(enviromental.humidity);
-			bank->pres.emplace_back(enviromental.pressure);
-			bank->windspd.emplace_back(enviromental.wind_speed);
-			bank->winddir.emplace_back(enviromental.wind_direction);
-			bank->rain.emplace_back(enviromental.rain_detected);
-//			lastSample = HAL_GetTick() - (timeSinceLastSample - 1000); // adjust for delayed data, if it took 100ms extra, only wait 900ms for next one
 			lastSample = HAL_GetTick();
 
 			char * rainState = "ERR";
@@ -111,33 +192,38 @@ void DataTask::SamplingTask(void *arg)
 					"\tT1CB: %8.8f\r\n"
 					"\tT1CC: %8.8f\r\n"
 					"\tT1CD: %8.8f\r\n"
+					"\tT1IT: %8.8f\r\n"
 					"\tT2CA: %8.8f\r\n"
 					"\tT2CB: %8.8f\r\n"
 					"\tT2CC: %8.8f\r\n"
 					"\tT2CD: %8.8f\r\n"
+					"\tT2IT: %8.8f\r\n"
 					"Sensor2:\r\n"
 					"\tT1CA: %8.8f\r\n"
 					"\tT1CB: %8.8f\r\n"
 					"\tT1CC: %8.8f\r\n"
 					"\tT1CD: %8.8f\r\n"
+					"\tT1IT: %8.8f\r\n"
 					"\tT2CA: %8.8f\r\n"
 					"\tT2CB: %8.8f\r\n"
 					"\tT2CC: %8.8f\r\n"
 					"\tT2CD: %8.8f\r\n"
+					"\tT2IT: %8.8f\r\n"
 					"Environmental:\r\n"
 					"\tHumidity: %8.8f\r\n"
 					"\tPressure: %8.8f\r\n"
+					"\tAir Temp: %8.8f\r\n"
 					"\tWind Speed: %8.8f\r\n"
 					"\tWind Direction: %8.8f\r\n"
 					"\tRain: %s",
 					timeSinceLastSample,
-					sensors[0].t1channels[0], sensors[0].t1channels[1], sensors[0].t1channels[2], sensors[0].t1channels[3],
-					sensors[0].t2channels[0], sensors[0].t2channels[1], sensors[0].t2channels[2], sensors[0].t2channels[3],
+					sensors[0].t1channels[0], sensors[0].t1channels[1], sensors[0].t1channels[2], sensors[0].t1channels[3], sensors[0].itemps[0],
+					sensors[0].t2channels[0], sensors[0].t2channels[1], sensors[0].t2channels[2], sensors[0].t2channels[3], sensors[0].itemps[1],
 
-					sensors[1].t1channels[0], sensors[1].t1channels[1], sensors[1].t1channels[2], sensors[1].t1channels[3],
-					sensors[1].t2channels[0], sensors[1].t2channels[1], sensors[1].t2channels[2], sensors[1].t2channels[3],
+					sensors[1].t1channels[0], sensors[1].t1channels[1], sensors[1].t1channels[2], sensors[1].t1channels[3], sensors[1].itemps[0],
+					sensors[1].t2channels[0], sensors[1].t2channels[1], sensors[1].t2channels[2], sensors[1].t2channels[3], sensors[1].itemps[1],
 
-					enviromental.humidity, enviromental.pressure, enviromental.wind_speed, enviromental.wind_direction, rainState);
+					enviromental.humidity, enviromental.pressure, enviromental.air_temp,enviromental.wind_speed, enviromental.wind_direction, rainState);
 			//	@formatter:on
 		}
 	}
@@ -173,15 +259,24 @@ HourlyData DataTask::generateProtoBuf(uint32_t unixTime)
 	osEventFlagsSet(this->taskEvents, 0x01); // tell other task to switch banks
 	osEventFlagsWait(this->taskEvents, 0x02, osFlagsWaitAny, osWaitForever); // wait for the ack
 
-
 	sampleBuf *bank = &banks[readIDX];
 	HourlyData data = HourlyData_init_zero;
 	sensors.reserve(2);
 	readings.reserve(16);
+	itemps.reserve(4);
 	int readingIdx = 0;
+	int itempIdx = 0;
 	for (int idx = 0; idx < 2; idx++)
 	{
 		sensors.push_back(HourlyData_SensorBoard_init_default);
+
+		for(int idx2 = 0; idx2 < 2; idx2++)
+		{
+			itemps.push_back(HourlyData_readings_init_default);
+			itemps[itempIdx].values = bank->itemps[idx][idx2].data();
+			itemps[itempIdx++].values_count = bank->itemps[idx][idx2].size();
+		}
+
 		for (int idx2 = 0; idx2 < 8; idx2++)
 		{
 			readings.push_back(HourlyData_readings_init_default);
@@ -190,12 +285,16 @@ HourlyData DataTask::generateProtoBuf(uint32_t unixTime)
 					bank->channels[idx][idx2].size();
 		}
 		sensors[idx].channels_count = 8;
+		sensors[idx].internalTemps_count = 2;
 	}
 	sensors[0].channels = readings.data();
 	sensors[1].channels = readings.data() + 8;
 
+	sensors[0].internalTemps = itemps.data();
+	sensors[1].internalTemps = itemps.data() + 2;
+
 	data.sensors = sensors.data();
-	data.sensors_count = sensors.size();
+	data.sensors_count = 2;
 
 	data.bmeBoard.rain = reinterpret_cast<bool*>(bank->rain.data());
 	data.bmeBoard.rain_count = bank->rain.size();
@@ -207,6 +306,10 @@ HourlyData DataTask::generateProtoBuf(uint32_t unixTime)
 	data.bmeBoard.pressure.values = bank->pres.data();
 	data.bmeBoard.pressure.values_count = bank->pres.size();
 	data.bmeBoard.has_pressure = true;
+
+	data.bmeBoard.airTemperature.values = bank->airtemps.data();
+	data.bmeBoard.airTemperature.values_count = bank->airtemps.size();
+	data.bmeBoard.has_airTemperature = true;
 
 	data.bmeBoard.windSpeed.values = bank->windspd.data();
 	data.bmeBoard.windSpeed.values_count = bank->windspd.size();
@@ -223,11 +326,18 @@ HourlyData DataTask::generateProtoBuf(uint32_t unixTime)
 	data.has_dataStart = true;
 
 	data.duration = bank->rain.size();
+
+	data.averagingTime = samplePeriod;
+
 	return data;
 }
 
 void DataTask::finishedSaving()
 {
+	sensors.clear();
+	readings.clear();
+	itemps.clear();
+
 	banks[(writeIDX + 1) % 2].clearAll();
 	osEventFlagsSet(this->taskEvents, 0x04); // let the other thread reserve max resources again
 }

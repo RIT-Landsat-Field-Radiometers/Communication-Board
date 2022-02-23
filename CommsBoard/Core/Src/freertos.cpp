@@ -84,7 +84,8 @@ extern Logger Log;
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
-osThreadAttr_t defaultTask_attributes{0};
+osThreadAttr_t defaultTask_attributes
+{ 0 };
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -98,9 +99,9 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 /* Hook prototypes */
 //void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName);
 //void vApplicationMallocFailedHook(void);
-
 /* USER CODE BEGIN 4 */
-extern "C" void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTaskName)
+extern "C" void vApplicationStackOverflowHook(xTaskHandle xTask,
+		signed char *pcTaskName)
 {
 	Log.error("stack overflow!!!!");
 	osDelay(100);
@@ -129,7 +130,7 @@ void MX_FREERTOS_Init(void)
 
 	defaultTask_attributes.name = "MainTask";
 	defaultTask_attributes.priority = (osPriority_t) osPriorityNormal;
-	defaultTask_attributes.stack_size = 2048 * 4;
+	defaultTask_attributes.stack_size = 4096 * 4;
 
 	/* USER CODE END Init */
 
@@ -155,7 +156,8 @@ void MX_FREERTOS_Init(void)
 uint64_t data_cnt = 0;
 uint64_t save_cnt = 0;
 uint64_t up_cnt = 0;
-char recbuf[2] = {0};
+char recbuf[2] =
+{ 0 };
 
 void StartMainTask(void *argument)
 {
@@ -211,26 +213,57 @@ void StartMainTask(void *argument)
 						case 0:
 						default:
 						recbuf[0] = 0x00; // nop char
-						break;
-					}
+					break;
+				}
 				HAL_UART_Receive_IT(huart, (uint8_t *)recbuf, 1);
 			}
 		});
 
 	HAL_UART_Receive_IT(&huart1, (uint8_t*) recbuf, 1);
 
-	privLog.debug("Starting Monitor...");
+	osDelay(5000);
+
+	/*
+	 * START OF MONITOR START UP
+	 */
+	privLog.info("Starting Monitor...");
 	MonitorTask *mtask = MonitorTask::getInstance();
 	mtask->start();
 	/*
+	 * END OF MONITOR START UP
+	 */
+	/*
+	 * START OF FILESYSTEM START UP
+	 */
+	privLog.info("Starting FileSystem...");
+	FileSystemTask filesystem;
+	if (!filesystem.start())
+	{
+		privLog.error("Could not start filesystem!");
+		for (;;)
+			osDelay(1000);
+	}
+	auto hostname = filesystem.getHostnameFromConfig();
+	if (hostname.size() < 1)
+	{
+		privLog.error("Could not get hostname from SD card!");
+		for (;;)
+			osDelay(1000);
+	}
+	privLog.info("Server hostname: %s", hostname.c_str());
+	/*
+	 * END OF FILESYSTEM START UP
+	 */
+	/*
 	 * START OF CELLULAR START UP
 	 */
-	privLog.debug("Starting Cellular...");
-	CellularTask cellular;
+	privLog.info("Starting Cellular...");
+	CellularTask cellular(hostname);
 	cellular.start();
 	cellular.connect();
+	cellular.printNetworkInfo();
 	auto unixStartTime = cellular.getServerTime();
-	privLog.info("Raw epoch time: %" HEX_WORD, unixStartTime);
+	privLog.debug("Raw epoch time: %" HEX_WORD, unixStartTime);
 //	auto unixStartTime = 1635983941;
 	/*
 	 * END OF CELLULAR START UP
@@ -238,7 +271,7 @@ void StartMainTask(void *argument)
 	/*
 	 * START OF RTC START UP
 	 */
-	privLog.debug("Starting RTC...");
+	privLog.info("Starting RTC...");
 	RTCTask rtc;
 	rtc.start();
 	rtc.setUnixTime(unixStartTime);
@@ -247,22 +280,9 @@ void StartMainTask(void *argument)
 	 * END OF RTC START UP
 	 */
 	/*
-	 * START OF FILESYSTEM START UP
-	 */
-	privLog.debug("Starting FileSystem...");
-	FileSystemTask filesystem;
-	if(!filesystem.start())
-	{
-		for (;;)
-			osDelay(1000);
-	}
-	/*
-	 * END OF FILESYSTEM START UP
-	 */
-	/*
 	 * START OF CANOpen START UP
 	 */
-	privLog.debug("Starting CAN...");
+	privLog.info("Starting CAN...");
 	CANOpenTask cantask(id1.getID());
 	cantask.start();
 	cantask.startLSSScan();
@@ -270,15 +290,19 @@ void StartMainTask(void *argument)
 	auto sensors = cantask.getSensorAddress();
 	auto bmes = cantask.getBMEAddress();
 	int idx = 1;
-	for(auto const & sen : sensors)
+	for (auto const &sen : sensors)
 	{
-		privLog.debug("Sensor[%d]- Vendor ID{%" HEX_WORD "}, Product Code{%" HEX_WORD "}, Revision Number{%" HEX_WORD "}, Serial Number{%" HEX_WORD "}",
-				idx++, sen.identity.vendorID, sen.identity.productCode, sen.identity.revisionNumber, sen.identity.serialNumber);
+		privLog.debug(
+				"Sensor[%d]- Vendor ID{%" HEX_WORD "}, Product Code{%" HEX_WORD "}, Revision Number{%" HEX_WORD "}, Serial Number{%" HEX_WORD "}",
+				idx++, sen.identity.vendorID, sen.identity.productCode,
+				sen.identity.revisionNumber, sen.identity.serialNumber);
 	}
-	for(auto const & bme : bmes)
+	for (auto const &bme : bmes)
 	{
-		privLog.debug("   BME[%d]- Vendor ID{%" HEX_WORD "}, Product Code{%" HEX_WORD "}, Revision Number{%" HEX_WORD "}, Serial Number{%" HEX_WORD "}",
-				idx++, bme.identity.vendorID, bme.identity.productCode, bme.identity.revisionNumber, bme.identity.serialNumber);
+		privLog.debug(
+				"   BME[%d]- Vendor ID{%" HEX_WORD "}, Product Code{%" HEX_WORD "}, Revision Number{%" HEX_WORD "}, Serial Number{%" HEX_WORD "}",
+				idx++, bme.identity.vendorID, bme.identity.productCode,
+				bme.identity.revisionNumber, bme.identity.serialNumber);
 	}
 
 	cantask.startAllDevices();
@@ -296,7 +320,7 @@ void StartMainTask(void *argument)
 	/*
 	 * START OF DATA START UP
 	 */
-	privLog.debug("Starting Data collection...");
+	privLog.info("Starting Data collection...");
 	DataTask datatask;
 	datatask.start();
 	datatask.generateProtoBuf(rtc.getUnixTime()); // "Switch" databanks now, just so the timestamp is set
@@ -307,20 +331,46 @@ void StartMainTask(void *argument)
 
 	privLog.info("Initialization Complete, Now Running");
 	/* Infinite loop */
+	int lastLED = HAL_GetTick();
+	bool state = false;
+
+	osThreadId_t runner = nullptr;
+	std::vector<std::string> files;
+	files.reserve(24);
 	for (;;)
 	{
+		if ((HAL_GetTick() - lastLED) > 500)
+		{
+			if (state)
+			{
+				leds.turnOff(color::WHITE);
+				state = false;
+			}
+			else
+			{
+				leds.turnOn(color::WHITE);
+				state = true;
+			}
+			lastLED = HAL_GetTick();
+		}
+
 		int32_t flags = rtc.waitFlags(RTCTask::ALARMA | RTCTask::ALARMB, 10);
 
 		if (flags > 0)
 		{
 			if (flags & RTCTask::ALARMA)
 			{
+				leds.turnOff(color::WHITE);
+				osDelay(5);
+				leds.slowFlash(color::BLUE);
 				// Hourly alarm active
-				privLog.info("Hourly Alarm triggered at: %s",
+				privLog.info("Saving samples to SDCard.... @ %s",
 						rtc.getStringTime());
 				auto data = datatask.generateProtoBuf(rtc.getUnixTime());
-				data.commsSerial = cantask.getOwnAddress().identity.serialNumber;
-				data.fwVersion = cantask.getOwnAddress().identity.revisionNumber;
+				data.commsSerial =
+						cantask.getOwnAddress().identity.serialNumber;
+				data.fwVersion =
+						cantask.getOwnAddress().identity.revisionNumber;
 				if (bmes.size() > 0 && data.has_bmeBoard)
 				{
 					data.bmeBoard.serialNumber = bmes[0].identity.serialNumber;
@@ -331,8 +381,10 @@ void StartMainTask(void *argument)
 				{
 					if (sensorIDX < data.sensors_count)
 					{
-						data.sensors[sensorIDX++].serialNumber = fp.identity.serialNumber;
-						data.sensors[sensorIDX++].fwVersion = fp.identity.revisionNumber;
+						data.sensors[sensorIDX++].serialNumber =
+								fp.identity.serialNumber;
+						data.sensors[sensorIDX++].fwVersion =
+								fp.identity.revisionNumber;
 					}
 				}
 
@@ -350,29 +402,143 @@ void StartMainTask(void *argument)
 			}
 			if (flags & RTCTask::ALARMB)
 			{
+				leds.turnOff(color::WHITE);
+				osDelay(5);
+				leds.fastFlash(color::BLUE);
 				// Daily alarm active
-				privLog.info("Daily Alarm triggered");
+				privLog.info("Uploading samples to server... @ %s",
+						rtc.getStringTime());
 				cellular.connect(); // Doing many operations, so keep it on until finished
 				auto curTime = rtc.getDateTime();
 				char dirpath[256];
 				sprintf(dirpath, "/data/%d/%d/%d", curTime.date.Year + 2000,
 						curTime.date.Month, curTime.date.Date - 1); // Look at previous day
-				auto files = filesystem.listDirectory(dirpath);
-				for (const auto &fp : files)
+//				files = std::move(filesystem.listDirectory(dirpath));
+
+				osThreadAttr_t Task_attributes
+				{ 0 };
+				Task_attributes.stack_size = 4096 * 4;
+				Task_attributes.name = "UPLOAD_SUB";
+				Task_attributes.priority = (osPriority_t) osPriorityNormal;
+
+				if (runner != nullptr)
 				{
-					privLog.info("Uploading file: %s", fp.c_str());
-					auto reader = filesystem.createBufferedReader(fp);
-					auto res = cellular.uploadFile(cantask.getOwnAddress().identity.serialNumber, reader);
-					if(res)
-						privLog.info("OK");
-					else
-						privLog.error("NOT OK");
+					osThreadTerminate(runner);
+					runner = nullptr;
 				}
 
-				unixStartTime = cellular.getServerTime(); // get time from server to correct drift
-				rtc.setUnixTime(unixStartTime);
+				typedef struct
+				{
+					osThreadId_t *thread;
+					FileSystemTask *fs;
+					CellularTask * net;
+					RTCTask * rtc;
+					std::string directory;
+					uint32_t commsSerial;
+				} runargs;
 
-				cellular.disconnect(); // turn it off to save power
+				runargs arguments
+				{ 0 };
+				arguments.thread = &runner;
+				arguments.fs = &filesystem;
+				arguments.net = &cellular;
+				arguments.rtc = &rtc;
+				arguments.directory = dirpath;
+				arguments.commsSerial = cantask.getOwnAddress().identity.serialNumber;
+
+				runner =
+						osThreadNew(
+								[](void *arg)
+								{
+									if(arg == nullptr)
+									{
+										osThreadExit(); // Can't do anything without input.......
+									}
+									auto fsys = ((runargs *) arg)->fs;
+									auto dirname = ((runargs *) arg)->directory;
+									auto net = ((runargs *) arg)->net;
+
+									{
+										Logger ilog("Upload_Sub");
+										auto files = fsys->listDirectory(dirname);
+
+										net->connect(); // Doing many operations, so keep it on until finished
+										uint8_t failCount = 0;
+										for(uint8_t idx = 0; idx < files.size();)
+	//									for (const auto &fp : files)
+										{
+											auto fp = files[idx];
+											ilog.info("Uploading file: %s", fp.c_str());
+											auto reader = fsys->createBufferedReader(fp);
+											auto res = net->uploadFile(((runargs *) arg)->commsSerial, reader);
+											if(res)
+											{
+												ilog.info("OK");
+												idx++;
+												failCount = 0;
+											}
+											else
+											{
+												ilog.error("NOT OK");
+
+												if(failCount >= 3)
+												{
+													ilog.error("Skipping file: %s", fp.c_str());
+													idx++;
+													failCount = 0;
+												}
+												else
+												{
+													failCount++;
+												}
+
+												net->disconnect();
+												osDelay(5 * 60 * 1000); // wait 5 min
+												net->connect();
+											}
+										}
+										auto unixStartTime = net->getServerTime(); // get time from server to correct drift
+										if (unixStartTime > 0)
+										{
+											((runargs *) arg)->rtc->setUnixTime(unixStartTime);
+										}
+										else
+										{
+											ilog.error("Failed to get time from server");
+										}
+										ilog.info("Done");
+
+										net->disconnect(); // turn it off to save power
+									}
+									*((runargs *) arg)->thread = nullptr;
+//									*runner = nullptr;
+									osThreadExit();
+								}, &arguments, &Task_attributes);
+
+//				for (const auto &fp : files)
+//				{
+//					privLog.info("Uploading file: %s", fp.c_str());
+//					auto reader = filesystem.createBufferedReader(fp);
+//					auto res = cellular.uploadFile(
+//							cantask.getOwnAddress().identity.serialNumber,
+//							reader);
+//					if (res)
+//						privLog.info("OK");
+//					else
+//						privLog.error("NOT OK");
+//				}
+
+//				unixStartTime = cellular.getServerTime(); // get time from server to correct drift
+//				if (unixStartTime > 0)
+//				{
+//					rtc.setUnixTime(unixStartTime);
+//				}
+//				else
+//				{
+//					privLog.error("Failed to get time from server");
+//				}
+//
+//				cellular.disconnect(); // turn it off to save power
 			}
 		}
 
