@@ -28,7 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+ extern volatile uint8_t tst_flag; // software flag for TST button
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

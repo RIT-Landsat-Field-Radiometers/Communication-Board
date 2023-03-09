@@ -33,9 +33,24 @@
 /* Private macros ------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Global variables ----------------------------------------------------------*/
+extern volatile uint8_t tst_flag; // software flag for TST button
 /* Private function prototypes -----------------------------------------------*/
 /* Functions Definition ------------------------------------------------------*/
 
+
+//void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+//{
+//  if (GPIO_Pin == MODEM_RING_PIN)
+//  {
+//    GPIO_PinState gstate = HAL_GPIO_ReadPin(MODEM_RING_GPIO_PORT, MODEM_RING_PIN);
+//    atcc_hw_event(DEVTYPE_MODEM_CELLULAR, HWEVT_MODEM_RING, gstate);
+//  }
+//  else
+//  {
+//    /* Nothing to do */
+//    __NOP();
+//  }
+//}
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
@@ -43,6 +58,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   {
     GPIO_PinState gstate = HAL_GPIO_ReadPin(MODEM_RING_GPIO_PORT, MODEM_RING_PIN);
     atcc_hw_event(DEVTYPE_MODEM_CELLULAR, HWEVT_MODEM_RING, gstate);
+  }
+  else if (GPIO_Pin == TST_BTN_Pin)
+  {
+	  tst_flag = 1;
   }
   else
   {

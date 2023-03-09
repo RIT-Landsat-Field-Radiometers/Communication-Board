@@ -79,6 +79,10 @@ extern UARTManager uartMan;
 extern UARTLogHandler *handler;
 extern Logger Log;
 
+extern volatile uint8_t tst_flag; // software flag for TST button
+
+int upload_done_flag = 0;	// flag to know when upload runner has finished
+
 //MonitorTask * monitor(MonitorTask::getInstance());
 
 /* USER CODE END Variables */
@@ -354,11 +358,20 @@ void StartMainTask(void *argument)
 			lastLED = HAL_GetTick();
 		}
 
+//	test code to make sure test button works
+//		if (tst_flag == 1)
+//		{
+//			privLog.info("TEST BUTTON CLICKED");
+//
+//		}
+
 		int32_t flags = rtc.waitFlags(RTCTask::ALARMA | RTCTask::ALARMB, 10);
 
 		if (flags > 0)
+//		if ( (flags > 0) || tst_flag == 1) // for debugging upload files
 		{
 			if (flags & RTCTask::ALARMA)
+//			if ( (flags & RTCTask::ALARMA) || tst_flag == 1 ) // for debugging upload files
 			{
 				leds.turnOff(color::WHITE);
 				osDelay(5);
@@ -366,6 +379,9 @@ void StartMainTask(void *argument)
 				// Hourly alarm active
 				privLog.info("Saving samples to SDCard.... @ %s",
 						rtc.getStringTime());
+				// the print below is for laptop logging
+				privLog.debug("Saving samples to SDCard.... @ %s",
+										rtc.getStringTime());
 				auto data = datatask.generateProtoBuf(rtc.getUnixTime());
 				data.commsSerial =
 						cantask.getOwnAddress().identity.serialNumber;
@@ -401,18 +417,24 @@ void StartMainTask(void *argument)
 				mtask->clearEvents();
 			}
 			if (flags & RTCTask::ALARMB)
+//			if ( (flags & RTCTask::ALARMB) || tst_flag == 1 ) // for debugging upload files
 			{
+//				tst_flag = 0;
 				leds.turnOff(color::WHITE);
 				osDelay(5);
 				leds.fastFlash(color::BLUE);
 				// Daily alarm active
 				privLog.info("Uploading samples to server... @ %s",
 						rtc.getStringTime());
+				// the print below is for laptop logging
+				privLog.debug("Uploading samples to server... @ %s",
+										rtc.getStringTime());
 				cellular.connect(); // Doing many operations, so keep it on until finished
 				auto curTime = rtc.getDateTime();
 				char dirpath[256];
 				sprintf(dirpath, "/data/%d/%d/%d", curTime.date.Year + 2000,
 						curTime.date.Month, curTime.date.Date - 1); // Look at previous day
+//						curTime.date.Month, curTime.date.Date ); // Look at current day
 //				files = std::move(filesystem.listDirectory(dirpath));
 
 				osThreadAttr_t Task_attributes
@@ -469,6 +491,8 @@ void StartMainTask(void *argument)
 										{
 											auto fp = files[idx];
 											ilog.info("Uploading file: %s", fp.c_str());
+											// the print below is for laptop logging
+											ilog.debug("Uploading file: %s", fp.c_str());
 											auto reader = fsys->createBufferedReader(fp);
 											auto res = net->uploadFile(((runargs *) arg)->commsSerial, reader);
 											if(res)
@@ -480,10 +504,14 @@ void StartMainTask(void *argument)
 											else
 											{
 												ilog.error("NOT OK");
+												// the print below is for laptop logging
+												ilog.debug("NOT OK, %s", ((runargs *) arg)->rtc->getStringTime());
 
 												if(failCount >= 3)
 												{
 													ilog.error("Skipping file: %s", fp.c_str());
+													// the print below is for laptop logging
+													ilog.debug("Skipping file: %s, %s", fp.c_str(), ((runargs *) arg)->rtc->getStringTime());
 													idx++;
 													failCount = 0;
 												}
@@ -505,15 +533,28 @@ void StartMainTask(void *argument)
 										else
 										{
 											ilog.error("Failed to get time from server");
+											// the print below is for laptop logging
+											ilog.debug("Failed to get time from server");
 										}
 										ilog.info("Done");
+										// the print below is for laptop logging
+										ilog.debug("Done, %s", ((runargs *) arg)->rtc->getStringTime());
 
 										net->disconnect(); // turn it off to save power
 									}
 									*((runargs *) arg)->thread = nullptr;
 //									*runner = nullptr;
 									osThreadExit();
+									upload_done_flag = 1;
 								}, &arguments, &Task_attributes);
+
+
+				// if the upload done flag is set, reset the boards
+				if (upload_done_flag){
+				privLog.debug("Upload finished. Restarting boards.");
+				cantask.resetAllDevices();
+				}
+
 
 //				for (const auto &fp : files)
 //				{

@@ -397,3 +397,8 @@ void CANOpenTask::pauseAllDevices()
 	log->info("Devices entering pre-operational");
 }
 
+void CANOpenTask::resetAllDevices()
+{
+	CO_NMT_sendCommand(this->canOpenHandle->NMT, CO_NMT_RESET_NODE, 0);
+	log->info("Devices entering reset");
+}

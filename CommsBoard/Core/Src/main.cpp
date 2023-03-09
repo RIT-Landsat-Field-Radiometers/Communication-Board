@@ -69,6 +69,8 @@ UARTManager uartMan(&huart1);
 UARTLogHandler *handler(UARTLogHandler::configure(&uartMan, LOG_LEVEL_ALL));
 Logger Log("app");
 
+volatile uint8_t tst_flag = 0; // software flag for the TST button
+
 extern const int uxTopUsedPriority;
 /* USER CODE END PV */
 

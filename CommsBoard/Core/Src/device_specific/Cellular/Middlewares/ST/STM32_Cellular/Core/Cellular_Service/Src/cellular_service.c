@@ -1556,6 +1556,7 @@ CS_Status_t CDS_socket_send(socket_handle_t sockHandle,
       else
       {
     	  __asm volatile ("nop"); // socket send is not OK...
+    	  PRINT_DBG("<Cellular_Service> Reed socket send is not OK")
       }
     }
   }

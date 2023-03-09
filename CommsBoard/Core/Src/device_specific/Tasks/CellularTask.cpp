@@ -181,6 +181,7 @@ uint32_t CellularTask::getServerTime()
 	return unixStartTime;
 }
 
+// below is updated upload file code. works well
 bool CellularTask::uploadFile(uint32_t commsID,
 		std::function<uint8_t* (uint32_t*)> bufferedReader)
 {
@@ -188,14 +189,29 @@ bool CellularTask::uploadFile(uint32_t commsID,
 
 	if(!connected)
 	{
-		connect();
+		if (!connect())
+		{
+			log->error("Connecting failed when uploading file");
+			return false; // Didn't connect
+		}
 	}
 
 	bool retval = true;
 	char url[128];
-	sprintf(url, "http://45.77.77.20:3000/radiometers/%#010lX", commsID);
+//	sprintf(url, "http://13.59.75.202:3000/radiometers/%#010lX", commsID); //hardcoded url
+	sprintf(url, "%s/radiometers/%#010lX", this->host.c_str(), commsID);
 
-	HttpRequest *req = new HttpRequest(HTTP_POST, url);
+
+	HttpRequest *req;
+	if(sockfd >= 0)
+	{
+		req = new HttpRequest(this->sockfd, HTTP_POST, url);
+	}
+	else
+	{
+		req = new HttpRequest(HTTP_POST, url);
+	}
+
 	req->set_header("Content-Type", "application/octet-stream");
 
 	auto res = req->send(bufferedReader);
@@ -216,6 +232,46 @@ bool CellularTask::uploadFile(uint32_t commsID,
 	return retval;
 }
 
+
+// below is current upload file code that needs to be updated
+//bool CellularTask::uploadFile(uint32_t commsID,
+//		std::function<uint8_t* (uint32_t*)> bufferedReader)
+//{
+//	auto prevState = connected;
+//
+//	if(!connected)
+//	{
+//		connect();
+//	}
+//
+//	bool retval = true;
+//	char url[128];
+//	sprintf(url, "http://13.59.75.202:3000/radiometers/%#010lX", commsID); //hardcoded url
+//
+//	HttpRequest *req = new HttpRequest(HTTP_POST, url);
+//	req->set_header("Content-Type", "application/octet-stream");
+//
+//	auto res = req->send(bufferedReader);
+//	if (!res || !res->is_message_complete() || res->get_status_code() != 200)
+//	{
+//		retval = false;
+//		_HourlyData_SystemEvents event = HourlyData_SystemEvents_init_zero;
+//		event.type = HourlyData_SystemEvents_EventType_OTHER;
+////		monitor->addEvent(event);
+//	}
+//	delete req;
+//
+//	if(!prevState)
+//	{
+//		disconnect();
+//	}
+//
+//	return retval;
+//}
+
+
+// below seems to be code that implements upload file better, but some was implemented
+// in freertos.cpp main function
 //bool CellularTask::uploadFile(uint32_t commsID,
 //		std::function<uint8_t* (uint32_t*)> bufferedReader)
 //{
