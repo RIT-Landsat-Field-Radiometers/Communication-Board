@@ -81,8 +81,6 @@ extern Logger Log;
 
 extern volatile uint8_t tst_flag; // software flag for TST button
 
-int upload_done_flag = 0;	// flag to know when upload runner has finished
-
 //MonitorTask * monitor(MonitorTask::getInstance());
 
 /* USER CODE END Variables */
@@ -455,6 +453,7 @@ void StartMainTask(void *argument)
 					FileSystemTask *fs;
 					CellularTask * net;
 					RTCTask * rtc;
+					CANOpenTask * cantask;
 					std::string directory;
 					uint32_t commsSerial;
 				} runargs;
@@ -465,6 +464,7 @@ void StartMainTask(void *argument)
 				arguments.fs = &filesystem;
 				arguments.net = &cellular;
 				arguments.rtc = &rtc;
+				arguments.cantask = &cantask;
 				arguments.directory = dirpath;
 				arguments.commsSerial = cantask.getOwnAddress().identity.serialNumber;
 
@@ -479,6 +479,7 @@ void StartMainTask(void *argument)
 									auto fsys = ((runargs *) arg)->fs;
 									auto dirname = ((runargs *) arg)->directory;
 									auto net = ((runargs *) arg)->net;
+									auto can = ((runargs *) arg)->cantask;
 
 									{
 										Logger ilog("Upload_Sub");
@@ -507,22 +508,25 @@ void StartMainTask(void *argument)
 												// the print below is for laptop logging
 												ilog.debug("NOT OK, %s", ((runargs *) arg)->rtc->getStringTime());
 
-												if(failCount >= 3)
-												{
-													ilog.error("Skipping file: %s", fp.c_str());
-													// the print below is for laptop logging
-													ilog.debug("Skipping file: %s, %s", fp.c_str(), ((runargs *) arg)->rtc->getStringTime());
-													idx++;
-													failCount = 0;
-												}
-												else
-												{
-													failCount++;
-												}
 
-												net->disconnect();
-												osDelay(5 * 60 * 1000); // wait 5 min
-												net->connect();
+												can->resetAllDevices(); // if not okay, restart all of the boards to avoid cellular lockup
+
+//												if(failCount >= 3)
+//												{
+//													ilog.error("Skipping file: %s", fp.c_str());
+//													// the print below is for laptop logging
+//													ilog.debug("Skipping file: %s, %s", fp.c_str(), ((runargs *) arg)->rtc->getStringTime());
+//													idx++;
+//													failCount = 0;
+//												}
+//												else
+//												{
+//													failCount++;
+//												}
+//
+//												net->disconnect();
+//												osDelay(5 * 60 * 1000); // wait 5 min
+//												net->connect();
 											}
 										}
 										auto unixStartTime = net->getServerTime(); // get time from server to correct drift
@@ -545,15 +549,7 @@ void StartMainTask(void *argument)
 									*((runargs *) arg)->thread = nullptr;
 //									*runner = nullptr;
 									osThreadExit();
-									upload_done_flag = 1;
 								}, &arguments, &Task_attributes);
-
-
-				// if the upload done flag is set, reset the boards
-				if (upload_done_flag){
-				privLog.debug("Upload finished. Restarting boards.");
-				cantask.resetAllDevices();
-				}
 
 
 //				for (const auto &fp : files)
