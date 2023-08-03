@@ -1,0 +1,16 @@
+ipc_uart.c:69:14:IPC_UART_init	2
+ipc_uart.c:97:14:IPC_UART_deinit	1
+ipc_uart.c:121:14:IPC_UART_open	10
+ipc_uart.c:227:14:IPC_UART_close	8
+ipc_uart.c:301:14:IPC_UART_reset	2
+ipc_uart.c:332:14:IPC_UART_abort	3
+ipc_uart.c:353:14:IPC_UART_select	2
+ipc_uart.c:369:15:IPC_UART_get_other_channel	5
+ipc_uart.c:396:14:IPC_UART_send	2
+ipc_uart.c:420:14:IPC_UART_receive	6
+ipc_uart.c:548:6:IPC_UART_rearm_RX_IT	3
+ipc_uart.c:631:6:IPC_UART_RxCpltCallback	3
+ipc_uart.c:650:6:IPC_UART_TxCpltCallback	3
+ipc_uart.c:672:6:IPC_UART_ErrorCallback	4
+ipc_uart.c:699:16:find_Device_Id	4
+ipc_uart.c:726:21:change_ipc_channel	1

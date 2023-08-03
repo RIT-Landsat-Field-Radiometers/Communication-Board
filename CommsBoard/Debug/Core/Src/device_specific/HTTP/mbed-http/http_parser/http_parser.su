@@ -1,0 +1,16 @@
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:488:1:parse_url_char	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:635:10:http_parser_execute	240	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2097:1:http_message_needs_eof	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2120:1:http_should_keep_alive	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2139:1:http_method_str	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2146:1:http_parser_init	24	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2157:1:http_parser_settings_init	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2163:1:http_errno_name	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2169:1:http_errno_description	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2175:1:http_parse_host_char	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2257:1:http_parse_host	40	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2339:1:http_parser_url_init	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2344:1:http_parser_parse_url	48	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2448:1:http_parser_pause	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2462:1:http_body_is_final	16	static
+../Core/Src/device_specific/HTTP/mbed-http/http_parser/http_parser.c:2467:1:http_parser_version	4	static

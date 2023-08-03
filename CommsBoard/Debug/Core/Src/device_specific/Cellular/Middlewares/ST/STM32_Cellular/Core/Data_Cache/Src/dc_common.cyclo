@@ -1,0 +1,9 @@
+dc_common.c:100:17:dc_com_register_serv	4
+dc_common.c:143:17:dc_com_core_register_gen_event_cb	4
+dc_common.c:178:17:dc_com_register_gen_event_cb	4
+dc_common.c:214:6:dc_com_register_gen_event_cb_common	1
+dc_common.c:233:17:dc_com_write	9
+dc_common.c:289:17:dc_com_read	5
+dc_common.c:314:17:dc_com_write_event	4
+dc_common.c:353:6:dc_com_init	2
+dc_common.c:371:6:dc_com_start	1

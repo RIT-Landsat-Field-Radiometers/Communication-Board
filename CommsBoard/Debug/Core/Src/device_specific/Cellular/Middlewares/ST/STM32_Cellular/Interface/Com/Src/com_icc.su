@@ -1,0 +1,13 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:124:13:com_icc_datacache_cb	240	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:213:13:com_icc_is_icc_available	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:226:13:com_icc_initialize_icc	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:267:13:com_icc_init_icc_desc	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:286:24:com_icc_provide_icc_desc	32	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:359:16:com_icc_use_icc_desc	32	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:417:16:com_icc_delete_icc_desc	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:465:16:com_icc_generic_access_csim	48	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:629:9:com_icc	40	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:709:9:com_icc_generic_access	40	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:781:9:com_closeicc	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:801:6:com_icc_init	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_icc.c:839:6:com_icc_start	8	static

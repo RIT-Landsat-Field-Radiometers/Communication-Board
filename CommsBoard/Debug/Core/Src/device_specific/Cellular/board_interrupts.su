@@ -1,0 +1,4 @@
+../Core/Src/device_specific/Cellular/board_interrupts.c:55:6:HAL_GPIO_EXTI_Callback	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/board_interrupts.c:73:6:HAL_UART_RxCpltCallback	16	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/board_interrupts.c:92:6:HAL_UART_TxCpltCallback	16	static
+../Core/Src/device_specific/Cellular/board_interrupts.c:100:6:HAL_UART_ErrorCallback	16	static

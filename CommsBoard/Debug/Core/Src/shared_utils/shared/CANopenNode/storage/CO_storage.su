@@ -1,0 +1,5 @@
+C:/Users/Chris/STM32CubeIDE/workspace_1.10.1/communication-board/CommsBoard/Core/Src/shared_utils/shared/CANopenNode/301/CO_driver.h:748:24:CO_getUint32	24	static
+C:/Users/Chris/STM32CubeIDE/workspace_1.10.1/communication-board/CommsBoard/Core/Src/shared_utils/shared/CANopenNode/301/CO_ODinterface.h:594:21:OD_extension_init	16	static
+../Core/Src/shared_utils/shared/CANopenNode/storage/CO_storage.c:34:14:OD_write_1010	40	static
+../Core/Src/shared_utils/shared/CANopenNode/storage/CO_storage.c:84:14:OD_write_1011	40	static
+../Core/Src/shared_utils/shared/CANopenNode/storage/CO_storage.c:129:18:CO_storage_init	24	static

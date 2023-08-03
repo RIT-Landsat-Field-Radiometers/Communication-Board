@@ -1,0 +1,10 @@
+ipc_rxfifo.c:80:6:IPC_RXFIFO_init	1
+ipc_rxfifo.c:107:6:IPC_RXFIFO_writeCharacter	4
+ipc_rxfifo.c:156:9:IPC_RXFIFO_read	4
+ipc_rxfifo.c:292:10:IPC_RXFIFO_getFreeBytes	3
+ipc_rxfifo.c:324:6:IPC_RXFIFO_readMsgHeader_at_pos	2
+ipc_rxfifo.c:440:13:RXFIFO_incrementTail	1
+ipc_rxfifo.c:450:13:RXFIFO_incrementHead	2
+ipc_rxfifo.c:476:13:RXFIFO_updateMsgHeader	1
+ipc_rxfifo.c:507:13:RXFIFO_prepareNextMsgHeader	2
+ipc_rxfifo.c:518:13:RXFIFO_rearm_RX_IT	1

@@ -196,6 +196,7 @@ int main(void)
 	MX_RNG_Init();
 	MX_FATFS_Init();
 	MX_USART2_UART_Init();
+	//MX_USART3_UART_Init();
 	MX_TIM16_Init();
 	MX_TIM15_Init();
 
@@ -282,6 +283,7 @@ void SystemClock_Config(void)
 			| RCC_PERIPHCLK_SDMMC1 | RCC_PERIPHCLK_RNG | RCC_PERIPHCLK_ADC;
 	PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
 	PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+	PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
 	PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
 	PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
 	PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;

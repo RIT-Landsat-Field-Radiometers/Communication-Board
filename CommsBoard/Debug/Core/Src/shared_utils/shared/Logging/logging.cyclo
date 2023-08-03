@@ -1,0 +1,11 @@
+logging.cpp:49:6:void log_set_callbacks(log_message_callback_type, log_write_callback_type, log_enabled_callback_type, void*)	1
+logging.cpp:58:6:void log_message_v(int, const char*, LogAttributes*, void*, const char*, va_list)	5
+logging.cpp:85:6:)	1
+logging.cpp:94:6:void log_write(int, const char*, const char*, size_t, void*)	3
+logging.cpp:108:6:void log_printf_v(int, const char*, void*, const char*, va_list)	4
+logging.cpp:130:6:)	1
+logging.cpp:139:6:void log_dump(int, const char*, const void*, size_t, int, void*)	8
+logging.cpp:179:5:int log_enabled(int, const char*, void*)	2
+stl_algobase.h:254:5:constexpr const _Tp& std::max(const _Tp&, const _Tp&) [with _Tp = int]	2
+stl_algobase.h:230:5:constexpr const _Tp& std::min(const _Tp&, const _Tp&) [with _Tp = int]	2
+logging.cpp:189:13:const char* log_level_name(int, void*)	1

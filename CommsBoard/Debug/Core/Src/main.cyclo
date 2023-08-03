@@ -1,0 +1,29 @@
+gthr-default.h:229:1:int __gthread_key_delete(__gthread_key_t)	1
+Logger.h:195:8:Logger::Logger(const char*)	1
+UARTLogHandler.h:20:14:const char* UARTLogHandler::extractFileName(const char*)	2
+UARTLogHandler.h:30:14:const char* UARTLogHandler::extractFuncName(const char*, size_t*)	4
+UARTLogHandler.h:48:11:UARTLogHandler::UARTLogHandler()	1
+UARTLogHandler.h:53:32:static UARTLogHandler* UARTLogHandler::getInstance()	3
+UARTLogHandler.h:59:14:static void UARTLogHandler::log_message_callback(const char*, int, const char*, const LogAttributes*, void*)	1
+UARTLogHandler.h:67:14:static void UARTLogHandler::log_write_callback(const char*, size_t, int, const char*, void*)	1
+UARTLogHandler.h:76:13:static int UARTLogHandler::log_enabled_callback(int, const char*, void*)	1
+UARTLogHandler.h:97:25:static UARTLogHandler* UARTLogHandler::configure(UARTManager*, LogLevel)	1
+UARTLogHandler.h:108:7:void UARTLogHandler::write(const char*, size_t, LogLevel, const char*)	2
+UARTLogHandler.h:121:21:static const char* UARTLogHandler::levelName(LogLevel)	1
+UARTLogHandler.h:129:11:LogLevel UARTLogHandler::level()	1
+UARTLogHandler.h:140:7:void UARTLogHandler::message(const char*, LogLevel, const char*, const LogAttributes&)	2
+UARTLogHandler.h:163:7:void UARTLogHandler::logMessage(const char*, LogLevel, const char*, const LogAttributes&)	13
+UARTLogHandler.h:246:14:void UARTLogHandler::write(const char*, size_t)	3
+main.cpp:86:7:void* operator new(std::size_t)	1
+main.cpp:91:6:void operator delete(void*)	1
+main.cpp:96:14:void* pvrealloc(void*, uint32_t)	4
+main.cpp:144:6:void SWO_Init(uint32_t, uint32_t)	1
+main.cpp:164:5:int main()	1
+main.cpp:233:6:void SystemClock_Config()	5
+main.cpp:320:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	2
+main.cpp:341:6:void Error_Handler()	1
+DS28CM00ID.h:50:10:DS28CM00_ID::~DS28CM00_ID()	1
+DS28CM00ID.h:50:10:virtual DS28CM00_ID::~DS28CM00_ID()	1
+main.cpp:350:1:void __static_initialization_and_destruction_0(int, int)	5
+main.cpp:350:1:cpp)	1
+main.cpp:350:1:cpp)	1

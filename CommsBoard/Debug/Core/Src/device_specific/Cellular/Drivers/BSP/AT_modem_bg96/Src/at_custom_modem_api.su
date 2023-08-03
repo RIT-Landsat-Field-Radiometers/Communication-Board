@@ -1,0 +1,2 @@
+../Core/Src/device_specific/Cellular/Drivers/BSP/AT_modem_bg96/Src/at_custom_modem_api.c:45:6:atcma_init_at_func_ptrs	16	static
+../Core/Src/device_specific/Cellular/Drivers/BSP/AT_modem_bg96/Src/at_custom_modem_api.c:65:6:atcma_init_sysctrl_func_ptrs	16	static

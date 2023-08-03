@@ -1,0 +1,5 @@
+adler32.c:63:15:adler32_z	13
+adler32.c:134:15:adler32	1
+adler32.c:143:13:adler32_combine_	5
+adler32.c:172:15:adler32_combine	1
+adler32.c:180:15:adler32_combine64	1

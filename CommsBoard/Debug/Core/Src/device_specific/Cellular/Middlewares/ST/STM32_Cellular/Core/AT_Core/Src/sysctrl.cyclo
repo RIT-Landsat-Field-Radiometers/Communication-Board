@@ -1,0 +1,8 @@
+sysctrl.c:61:18:SysCtrl_getDeviceDescriptor	3
+sysctrl.c:92:18:SysCtrl_open_channel	2
+sysctrl.c:114:18:SysCtrl_close_channel	2
+sysctrl.c:136:18:SysCtrl_power_on	2
+sysctrl.c:158:18:SysCtrl_power_off	2
+sysctrl.c:180:18:SysCtrl_reset_device	2
+sysctrl.c:203:18:SysCtrl_sim_select	2
+sysctrl.c:225:6:SysCtrl_delay	2

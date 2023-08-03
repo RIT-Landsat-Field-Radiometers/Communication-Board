@@ -1,0 +1,9 @@
+sysctrl_specific.c:74:18:SysCtrl_BG96_getDeviceDescriptor	4
+sysctrl_specific.c:113:18:SysCtrl_BG96_open_channel	2
+sysctrl_specific.c:144:18:SysCtrl_BG96_close_channel	2
+sysctrl_specific.c:162:18:SysCtrl_BG96_power_on	1
+sysctrl_specific.c:214:18:SysCtrl_BG96_power_off	1
+sysctrl_specific.c:246:18:SysCtrl_BG96_reset	1
+sysctrl_specific.c:286:18:SysCtrl_BG96_sim_select	1
+sysctrl_specific.c:321:25:SysCtrl_BG96_setup	1
+sysctrl_specific.c:369:18:SysCtrl_BG96_wakeup_from_PSM	1

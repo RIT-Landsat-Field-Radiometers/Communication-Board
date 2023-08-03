@@ -1,0 +1,13 @@
+at_modem_socket.c:73:13:atcm_socket_reserve_modem_cid	2
+at_modem_socket.c:97:13:atcm_socket_release_modem_cid	4
+at_modem_socket.c:131:10:atcm_socket_get_modem_cid	2
+at_modem_socket.c:154:13:atcm_socket_set_modem_cid	2
+at_modem_socket.c:177:17:atcm_socket_get_socket_handle	4
+at_modem_socket.c:204:13:atcm_socket_set_urc_data_pending	2
+at_modem_socket.c:227:13:atcm_socket_set_urc_closed_by_remote	2
+at_modem_socket.c:250:17:atcm_socket_get_hdle_urc_data_pending	3
+at_modem_socket.c:276:17:atcm_socket_get_hdlr_urc_closed_by_remote	3
+at_modem_socket.c:301:11:atcm_socket_remaining_urc_data_pending	3
+at_modem_socket.c:324:11:atcm_socket_remaining_urc_closed_by_remote	3
+at_modem_socket.c:345:11:atcm_socket_is_connected	3
+at_modem_socket.c:363:13:atcm_socket_set_connected	2

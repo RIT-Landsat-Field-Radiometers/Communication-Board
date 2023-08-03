@@ -1,0 +1,12 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:68:13:atcc_initParsers	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:95:6:atcc_init	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:106:34:atcc_checkEndOfMsgCallback	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:119:13:atcc_getCmd	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:136:13:atcc_extractElement	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:158:17:atcc_analyzeCmd	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:177:17:atcc_analyzeParam	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:195:17:atcc_terminateCmd	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:211:13:atcc_get_rsp	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:227:13:atcc_get_urc	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:243:13:atcc_get_error	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_modem_api.c:261:6:atcc_hw_event	16	static

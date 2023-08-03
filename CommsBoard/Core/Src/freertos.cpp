@@ -168,7 +168,7 @@ void StartMainTask(void *argument)
 	Logger privLog("Main");
 	privLog.info("Initializing Processes....");
 
-	handler->setLevel(LogLevel::INFO_LEVEL);
+	handler->setLevel(LogLevel::DEBUG_LEVEL);
 
 	HAL_UART_RegisterCallback(&huart1, HAL_UART_RX_COMPLETE_CB_ID,
 			[](UART_HandleTypeDef *huart)
@@ -253,6 +253,9 @@ void StartMainTask(void *argument)
 			osDelay(1000);
 	}
 	privLog.info("Server hostname: %s", hostname.c_str());
+
+	//read upload flag
+	uint8_t upload_fail = filesystem.getUploadFlag();
 	/*
 	 * END OF FILESYSTEM START UP
 	 */
@@ -339,6 +342,8 @@ void StartMainTask(void *argument)
 	osThreadId_t runner = nullptr;
 	std::vector<std::string> files;
 	files.reserve(24);
+
+
 	for (;;)
 	{
 		if ((HAL_GetTick() - lastLED) > 500)
@@ -364,8 +369,9 @@ void StartMainTask(void *argument)
 //		}
 
 		int32_t flags = rtc.waitFlags(RTCTask::ALARMA | RTCTask::ALARMB, 10);
+		//FIL status_file;
 
-		if (flags > 0)
+		if ((flags > 0) | (upload_fail > 0))
 //		if ( (flags > 0) || tst_flag == 1) // for debugging upload files
 		{
 			if (flags & RTCTask::ALARMA)
@@ -414,13 +420,20 @@ void StartMainTask(void *argument)
 				datatask.finishedSaving();
 				mtask->clearEvents();
 			}
-			if (flags & RTCTask::ALARMB)
+			if ((flags & RTCTask::ALARMB) || (upload_fail > 0)) //if previous upload failed, try uploading again
 //			if ( (flags & RTCTask::ALARMB) || tst_flag == 1 ) // for debugging upload files
 			{
+				if(upload_fail > 0){
+					filesystem.resetUploadFails();
+					upload_fail = filesystem.getUploadFlag();
+				}
 //				tst_flag = 0;
 				leds.turnOff(color::WHITE);
 				osDelay(5);
 				leds.fastFlash(color::BLUE);
+
+				char dirpath[256];
+				//upload previous files if # of upload fails is greater than 0
 				// Daily alarm active
 				privLog.info("Uploading samples to server... @ %s",
 						rtc.getStringTime());
@@ -428,10 +441,12 @@ void StartMainTask(void *argument)
 				privLog.debug("Uploading samples to server... @ %s",
 										rtc.getStringTime());
 				cellular.connect(); // Doing many operations, so keep it on until finished
-				auto curTime = rtc.getDateTime();
-				char dirpath[256];
+				//auto curTime = rtc.getDateTime();
+				auto unixCurTime = rtc.getUnixTime();
+				auto curTime = rtc.convertUnixToDateTime(unixCurTime - 86400);
+				privLog.debug("Uploading files from %d/%d/%d", curTime.date.Date, curTime.date.Month, curTime.date.Year +2000);
 				sprintf(dirpath, "/data/%d/%d/%d", curTime.date.Year + 2000,
-						curTime.date.Month, curTime.date.Date - 1); // Look at previous day
+						curTime.date.Month, curTime.date.Date); // Look at previous day
 //						curTime.date.Month, curTime.date.Date ); // Look at current day
 //				files = std::move(filesystem.listDirectory(dirpath));
 
@@ -447,6 +462,8 @@ void StartMainTask(void *argument)
 					runner = nullptr;
 				}
 
+
+
 				typedef struct
 				{
 					osThreadId_t *thread;
@@ -456,6 +473,9 @@ void StartMainTask(void *argument)
 					CANOpenTask * cantask;
 					std::string directory;
 					uint32_t commsSerial;
+
+					//test
+					//FIL * sf; testing file check for reupload
 				} runargs;
 
 				runargs arguments
@@ -467,6 +487,7 @@ void StartMainTask(void *argument)
 				arguments.cantask = &cantask;
 				arguments.directory = dirpath;
 				arguments.commsSerial = cantask.getOwnAddress().identity.serialNumber;
+				//arguments.sf = &status_file;
 
 				runner =
 						osThreadNew(
@@ -480,7 +501,8 @@ void StartMainTask(void *argument)
 									auto dirname = ((runargs *) arg)->directory;
 									auto net = ((runargs *) arg)->net;
 									auto can = ((runargs *) arg)->cantask;
-
+									//auto status_file = ((runargs *) arg)->sf;
+									//test code for status flag
 									{
 										Logger ilog("Upload_Sub");
 										auto files = fsys->listDirectory(dirname);
@@ -501,6 +523,7 @@ void StartMainTask(void *argument)
 												ilog.info("OK");
 												idx++;
 												failCount = 0;
+												fsys->resetUploadFails();
 											}
 											else
 											{
@@ -508,8 +531,20 @@ void StartMainTask(void *argument)
 												// the print below is for laptop logging
 												ilog.debug("NOT OK, %s", ((runargs *) arg)->rtc->getStringTime());
 
+												if(fsys->getUploadFlag() >= 3)
+												{
+													ilog.error("Skipping file: %s", fp.c_str());
+													//the print below is for laptop logging
+													ilog.debug("Skipping file: %s, %s", fp.c_str(), ((runargs *) arg)->rtc->getStringTime());
+													idx++;
+													fsys->resetUploadFails();
+												}else{
+													fsys->increaseUploadFails();
+													can->resetAllDevices(); // if not okay, restart all of the boards to avoid cellular lockup
+												}
 
-												can->resetAllDevices(); // if not okay, restart all of the boards to avoid cellular lockup
+												//can->resetAllDevices(); // if not okay, restart all of the boards to avoid cellular lockup
+
 
 //												if(failCount >= 3)
 //												{

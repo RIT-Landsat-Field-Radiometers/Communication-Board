@@ -1,0 +1,8 @@
+UARTManager.cpp:27:1:UARTManager::UARTManager(UART_HandleTypeDef*)	1
+UARTManager.cpp:34:6:static void UARTManager::txComplete(UART_HandleTypeDef*)	3
+UARTManager.cpp:42:18:static void UARTManager::main(void*)	6
+UARTManager.cpp:81:6:void UARTManager::start()	1
+UARTManager.cpp:98:6:)	2
+UARTManager.cpp:115:6:void UARTManager::vprint(const char*, va_list)	2
+UARTManager.cpp:127:1:UARTManager::~UARTManager()	1
+UARTManager.cpp:127:1:virtual UARTManager::~UARTManager()	1

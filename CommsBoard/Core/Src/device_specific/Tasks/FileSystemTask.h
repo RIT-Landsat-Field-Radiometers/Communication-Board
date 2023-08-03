@@ -44,6 +44,12 @@ public:
 	uint64_t getRemainingCapacity();
 
 	std::string getHostnameFromConfig();
+
+	uint8_t getUploadFlag();
+
+	void increaseUploadFails();
+
+	void resetUploadFails();
 };
 
 #endif /* SRC_DEVICE_SPECIFIC_TASKS_FILESYSTEMTASK_H_ */

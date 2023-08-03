@@ -1,0 +1,5 @@
+CO_driver.h:748:24:CO_getUint32	1
+CO_ODinterface.h:594:21:OD_extension_init	2
+CO_storage.c:34:14:OD_write_1010	19
+CO_storage.c:84:14:OD_write_1011	19
+CO_storage.c:129:18:CO_storage_init	4

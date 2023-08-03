@@ -1,0 +1,4 @@
+../Core/Src/shared_utils/shared/CANopenNode/storage/CO_storageEeprom.c:36:14:storeEeprom	32	static
+../Core/Src/shared_utils/shared/CANopenNode/storage/CO_storageEeprom.c:80:14:restoreEeprom	32	static
+../Core/Src/shared_utils/shared/CANopenNode/storage/CO_storageEeprom.c:108:18:CO_storageEeprom_init	112	dynamic
+../Core/Src/shared_utils/shared/CANopenNode/storage/CO_storageEeprom.c:227:6:CO_storageEeprom_auto_process	48	static

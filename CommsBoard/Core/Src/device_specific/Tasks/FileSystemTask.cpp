@@ -303,3 +303,88 @@ std::string FileSystemTask::getHostnameFromConfig()
 
     return std::string(json_getValue(host));
 }
+
+uint8_t FileSystemTask::getUploadFlag()
+{
+	std::string path = "/config/flags.txt";
+	static FIL fin;
+	UINT read = 0;
+	uint8_t reup_fails = 0;
+	FRESULT fresult;  // result
+
+	//open file
+	fresult = f_open(&fin, path.c_str(), FA_READ);
+	if (fresult != FR_OK){
+		log->error("Missing flags.txt");
+	}
+
+	//read number of reupload fails
+	fresult = f_read(&fin, &reup_fails, sizeof(reup_fails), &read);
+	reup_fails -= '0';
+	log->debug("# of upload fails: %u", reup_fails);
+
+	//close file
+	fresult = f_close(&fin);
+
+	//return flag value
+	return reup_fails;
+}
+
+//increment number of fails and save to text file
+void FileSystemTask::increaseUploadFails()
+{
+	std::string path = "/config/flags.txt";
+	uint8_t current_fails = 0;
+	static FIL fin;
+	UINT write = 0;
+	FRESULT fresult;  // result
+
+	//DEBUG: increment # of fails
+	current_fails = getUploadFlag();
+	current_fails += 1;
+	log->debug("# of fails increased");
+	fresult = f_open(&fin, path.c_str(), FA_OPEN_APPEND | FA_WRITE);
+	if (fresult != FR_OK){
+		log->error("Missing flags.txt");
+	}
+
+	do{
+		f_lseek(&fin, f_tell(&fin) - 1);
+		f_truncate(&fin);
+		fresult = f_write(&fin, &current_fails, 1, &write);
+		if(fresult != FR_OK)
+		{
+			log->debug("Write failed, trying again");
+		}
+	}while(fresult != FR_OK);
+
+	getUploadFlag();
+}
+
+//rewrite text file to have 0 fails
+void FileSystemTask::resetUploadFails()
+{
+	std::string path = "/config/flags.txt";
+	uint8_t current_fails = '0';
+	static FIL fin;
+	UINT write = 0;
+	FRESULT fresult;  // result
+
+	fresult = f_open(&fin, path.c_str(), FA_WRITE | FA_OPEN_APPEND);
+	if (fresult != FR_OK){
+		log->error("Missing flags.txt");
+	}
+	log->debug("Resetting # of fails");
+
+	do{
+		f_lseek(&fin, f_tell(&fin) - 1);
+		f_truncate(&fin);
+		fresult = f_write(&fin, &current_fails, 1, &write);
+		if(fresult != FR_OK)
+		{
+			log->debug("Write failed, trying again");
+		}
+	}while(fresult != FR_OK);
+
+	fresult = f_close(&fin);
+}

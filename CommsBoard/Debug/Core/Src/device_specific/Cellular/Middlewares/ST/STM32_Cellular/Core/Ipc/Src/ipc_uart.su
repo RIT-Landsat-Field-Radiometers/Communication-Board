@@ -1,0 +1,16 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:69:14:IPC_UART_init	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:97:14:IPC_UART_deinit	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:121:14:IPC_UART_open	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:227:14:IPC_UART_close	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:301:14:IPC_UART_reset	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:332:14:IPC_UART_abort	16	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:353:14:IPC_UART_select	16	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:369:15:IPC_UART_get_other_channel	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:396:14:IPC_UART_send	32	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:420:14:IPC_UART_receive	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:548:6:IPC_UART_rearm_RX_IT	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:631:6:IPC_UART_RxCpltCallback	32	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:650:6:IPC_UART_TxCpltCallback	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:672:6:IPC_UART_ErrorCallback	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:699:16:find_Device_Id	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_uart.c:726:21:change_ipc_channel	24	static,ignoring_inline_asm

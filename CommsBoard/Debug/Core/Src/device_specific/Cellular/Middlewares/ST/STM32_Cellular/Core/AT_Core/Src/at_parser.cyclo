@@ -1,0 +1,14 @@
+at_parser.c:89:13:ATParser_initParsers	1
+at_parser.c:94:6:ATParser_init	1
+at_parser.c:112:7:ATParser_process_request	1
+at_parser.c:134:13:write_data2buffer	3
+at_parser.c:163:17:build_command	9
+at_parser.c:274:19:ATParser_get_ATcmd	8
+at_parser.c:335:17:ATParser_parse_rsp	8
+at_parser.c:411:13:ATParser_get_rsp	1
+at_parser.c:423:13:ATParser_get_urc	1
+at_parser.c:431:13:ATParser_get_error	1
+at_parser.c:439:6:ATParser_abort_request	1
+at_parser.c:445:13:reset_parser_context	1
+at_parser.c:459:13:reset_current_command	1
+at_parser.c:468:13:display_buffer	8

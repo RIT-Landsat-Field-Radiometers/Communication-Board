@@ -1,0 +1,13 @@
+com_icc.c:124:13:com_icc_datacache_cb	9
+com_icc.c:213:13:com_icc_is_icc_available	1
+com_icc.c:226:13:com_icc_initialize_icc	3
+com_icc.c:267:13:com_icc_init_icc_desc	1
+com_icc.c:286:24:com_icc_provide_icc_desc	7
+com_icc.c:359:16:com_icc_use_icc_desc	11
+com_icc.c:417:16:com_icc_delete_icc_desc	8
+com_icc.c:465:16:com_icc_generic_access_csim	2
+com_icc.c:629:9:com_icc	6
+com_icc.c:709:9:com_icc_generic_access	11
+com_icc.c:781:9:com_closeicc	1
+com_icc.c:801:6:com_icc_init	4
+com_icc.c:839:6:com_icc_start	1

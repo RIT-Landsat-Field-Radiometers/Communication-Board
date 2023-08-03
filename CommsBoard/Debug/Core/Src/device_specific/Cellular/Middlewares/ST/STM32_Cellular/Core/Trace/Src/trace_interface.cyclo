@@ -1,0 +1,13 @@
+trace_interface.c:314:13:ITM_Out	5
+trace_interface.c:357:13:traceIF_uartTransmit	1
+trace_interface.c:374:6:traceIF_trace_off	1
+trace_interface.c:384:6:traceIF_trace_on	1
+trace_interface.c:397:6:traceIF_itmPrint	5
+trace_interface.c:430:6:traceIF_uartPrint	4
+trace_interface.c:458:6:traceIF_itmPrintForce	2
+trace_interface.c:479:6:traceIF_uartPrintForce	1
+trace_interface.c:499:6:traceIF_hexPrint	1
+trace_interface.c:557:6:traceIF_BufCharPrint	8
+trace_interface.c:616:6:traceIF_BufHexPrint	4
+trace_interface.c:645:6:traceIF_init	2
+trace_interface.c:662:6:traceIF_start	1

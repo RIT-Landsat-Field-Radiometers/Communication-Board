@@ -1,0 +1,16 @@
+http_parser.c:488:1:parse_url_char	64
+http_parser.c:635:10:http_parser_execute	485
+http_parser.c:2097:1:http_message_needs_eof	8
+http_parser.c:2120:1:http_should_keep_alive	5
+http_parser.c:2139:1:http_method_str	2
+http_parser.c:2146:1:http_parser_init	3
+http_parser.c:2157:1:http_parser_settings_init	1
+http_parser.c:2163:1:http_errno_name	1
+http_parser.c:2169:1:http_errno_description	1
+http_parser.c:2175:1:http_parse_host_char	67
+http_parser.c:2257:1:http_parse_host	15
+http_parser.c:2339:1:http_parser_url_init	1
+http_parser.c:2344:1:http_parser_parse_url	19
+http_parser.c:2448:1:http_parser_pause	3
+http_parser.c:2462:1:http_body_is_final	1
+http_parser.c:2467:1:http_parser_version	1

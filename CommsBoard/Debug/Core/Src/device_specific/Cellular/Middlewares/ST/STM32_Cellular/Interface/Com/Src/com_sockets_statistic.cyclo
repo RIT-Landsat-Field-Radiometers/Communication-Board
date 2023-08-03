@@ -1,0 +1,3 @@
+com_sockets_statistic.c:123:6:com_sockets_statistic_init	1
+com_sockets_statistic.c:157:6:com_sockets_statistic_update	13
+com_sockets_statistic.c:209:6:com_sockets_statistic_display	2

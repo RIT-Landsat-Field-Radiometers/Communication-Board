@@ -1,0 +1,4 @@
+board_interrupts.c:55:6:HAL_GPIO_EXTI_Callback	3
+board_interrupts.c:73:6:HAL_UART_RxCpltCallback	2
+board_interrupts.c:92:6:HAL_UART_TxCpltCallback	2
+board_interrupts.c:100:6:HAL_UART_ErrorCallback	2

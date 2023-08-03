@@ -1,0 +1,6 @@
+zutil.c:27:22:zlibVersion	1
+zutil.c:32:15:zlibCompileFlags	1
+zutil.c:133:22:zError	1
+zutil.c:149:20:zmemcpy	3
+zutil.c:160:19:zmemcmp	4
+zutil.c:173:20:zmemzero	3

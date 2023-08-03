@@ -1,0 +1,8 @@
+cellular_service_int.c:74:6:csint_modem_reset_update_socket_state	4
+cellular_service_int.c:118:6:csint_socket_init	1
+cellular_service_int.c:151:17:csint_socket_allocateHandle	3
+cellular_service_int.c:175:6:csint_socket_deallocateHandle	1
+cellular_service_int.c:181:13:csint_socket_create	2
+cellular_service_int.c:216:13:csint_socket_bind	2
+cellular_service_int.c:246:13:csint_socket_configure	23
+cellular_service_int.c:419:13:csint_socket_configure_remote	4

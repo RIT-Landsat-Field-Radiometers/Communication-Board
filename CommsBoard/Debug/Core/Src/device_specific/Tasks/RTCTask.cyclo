@@ -1,0 +1,27 @@
+gthr-default.h:229:1:int __gthread_key_delete(__gthread_key_t)	1
+Logger.h:195:8:Logger::Logger(const char*)	1
+Logger.h:216:13:) const	1
+Logger.h:338:13:void Logger::log(LogLevel, const char*, va_list) const	1
+MonitorTask.h:35:22:void __tcf_0()	1
+MonitorTask.h:33:23:static MonitorTask* MonitorTask::getInstance()	4
+TaskInterface.h:26:2:TaskInterface::TaskInterface()	1
+RTCTask.h:48:22:static RTCTask::RTC_DateTime RTCTask::convertUnixToDateTime(uint32_t)	2
+RTCTask.h:73:18:static uint32_t RTCTask::convertDateTimeToUnix(RTCTask::RTC_DateTime)	1
+RTCTask.cpp:14:10:uint32_t extGetUnixTime()	2
+RTCTask.cpp:23:1:RTCTask::RTCTask()	1
+RTCTask.cpp:29:1:RTCTask::~RTCTask()	1
+RTCTask.cpp:34:6:virtual bool RTCTask::start()	1
+RTCTask.cpp:52:6:virtual bool RTCTask::kill()	1
+RTCTask.cpp:60:10:uint32_t RTCTask::getUnixTime()	1
+RTCTask.cpp:65:6:void RTCTask::setUnixTime(uint32_t)	1
+RTCTask.cpp:75:23:RTCTask::RTC_DateTime RTCTask::getDateTime()	1
+RTCTask.cpp:101:4:RTCTask::enable1HourAlarm()::<lambda(RTC_HandleTypeDef*)>	2
+RTCTask.cpp:101:4:static void RTCTask::enable1HourAlarm()::<lambda(RTC_HandleTypeDef*)>::_FUN(RTC_HandleTypeDef*)	1
+RTCTask.cpp:101:4:RTCTask::enable1HourAlarm()::<lambda(RTC_HandleTypeDef*)>::operator void (*)(RTC_HandleTypeDef*)() const	1
+RTCTask.cpp:85:6:void RTCTask::enable1HourAlarm()	1
+RTCTask.cpp:127:4:RTCTask::enable24HourAlarm()::<lambda(RTC_HandleTypeDef*)>	2
+RTCTask.cpp:127:4:static void RTCTask::enable24HourAlarm()::<lambda(RTC_HandleTypeDef*)>::_FUN(RTC_HandleTypeDef*)	1
+RTCTask.cpp:127:4:RTCTask::enable24HourAlarm()::<lambda(RTC_HandleTypeDef*)>::operator void (*)(RTC_HandleTypeDef*)() const	1
+RTCTask.cpp:111:6:void RTCTask::enable24HourAlarm()	1
+RTCTask.cpp:137:6:void RTCTask::disableAlarms()	1
+RTCTask.cpp:145:8:char* RTCTask::getStringTime()	1

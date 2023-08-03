@@ -1,0 +1,8 @@
+../Core/Src/device_specific/zlib/crc32.c:188:29:get_crc_table	4	static
+../Core/Src/device_specific/zlib/crc32.c:202:18:crc32_z	24	static
+../Core/Src/device_specific/zlib/crc32.c:237:18:crc32	24	static
+../Core/Src/device_specific/zlib/crc32.c:344:21:gf2_matrix_times	24	static
+../Core/Src/device_specific/zlib/crc32.c:361:12:gf2_matrix_square	32	static
+../Core/Src/device_specific/zlib/crc32.c:372:13:crc32_combine_	296	static
+../Core/Src/device_specific/zlib/crc32.c:428:15:crc32_combine	24	static
+../Core/Src/device_specific/zlib/crc32.c:436:15:crc32_combine64	24	static
