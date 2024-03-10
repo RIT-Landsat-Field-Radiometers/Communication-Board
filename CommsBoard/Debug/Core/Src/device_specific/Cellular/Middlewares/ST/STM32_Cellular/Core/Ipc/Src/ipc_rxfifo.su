@@ -1,0 +1,10 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_rxfifo.c:80:6:IPC_RXFIFO_init	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_rxfifo.c:107:6:IPC_RXFIFO_writeCharacter	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_rxfifo.c:156:9:IPC_RXFIFO_read	32	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_rxfifo.c:292:10:IPC_RXFIFO_getFreeBytes	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_rxfifo.c:324:6:IPC_RXFIFO_readMsgHeader_at_pos	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_rxfifo.c:440:13:RXFIFO_incrementTail	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_rxfifo.c:450:13:RXFIFO_incrementHead	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_rxfifo.c:476:13:RXFIFO_updateMsgHeader	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_rxfifo.c:507:13:RXFIFO_prepareNextMsgHeader	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_rxfifo.c:518:13:RXFIFO_rearm_RX_IT	16	static

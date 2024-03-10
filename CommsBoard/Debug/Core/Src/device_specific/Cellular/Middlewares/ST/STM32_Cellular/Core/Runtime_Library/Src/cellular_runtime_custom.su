@@ -1,0 +1,1 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Runtime_Library/Src/cellular_runtime_custom.c:47:10:crc_get_ip_addr	40	static

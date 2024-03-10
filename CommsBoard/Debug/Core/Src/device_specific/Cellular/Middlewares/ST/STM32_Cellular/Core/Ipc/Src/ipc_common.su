@@ -1,0 +1,12 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:49:14:IPC_init	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:91:14:IPC_deinit	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:119:14:IPC_open	48	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:172:14:IPC_close	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:193:14:IPC_reset	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:214:14:IPC_abort	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:235:14:IPC_select	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:256:15:IPC_get_other_channel	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:268:14:IPC_send	32	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:290:14:IPC_receive	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:315:14:IPC_streamReceive	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Ipc/Src/ipc_common.c:344:6:IPC_DumpRXQueue	16	static,ignoring_inline_asm

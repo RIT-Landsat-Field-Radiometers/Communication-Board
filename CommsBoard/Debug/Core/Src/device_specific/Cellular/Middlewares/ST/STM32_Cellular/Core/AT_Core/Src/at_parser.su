@@ -1,0 +1,14 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:89:13:ATParser_initParsers	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:94:6:ATParser_init	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:112:7:ATParser_process_request	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:134:13:write_data2buffer	32	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:163:17:build_command	48	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:274:19:ATParser_get_ATcmd	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:335:17:ATParser_parse_rsp	48	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:411:13:ATParser_get_rsp	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:423:13:ATParser_get_urc	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:431:13:ATParser_get_error	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:439:6:ATParser_abort_request	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:445:13:reset_parser_context	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:459:13:reset_current_command	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_parser.c:468:13:display_buffer	32	static,ignoring_inline_asm

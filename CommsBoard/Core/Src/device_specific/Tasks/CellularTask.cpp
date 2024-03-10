@@ -181,6 +181,322 @@ uint32_t CellularTask::getServerTime()
 	return unixStartTime;
 }
 
+// this function lets the server know that this radiometer is booting up from a reset
+bool CellularTask::sendBootup(uint32_t commsID)
+{
+	auto prevState = connected;
+
+		// connect to the server
+		if (!connected)
+		{
+			if (!connect())
+			{
+				log->error("Connecting failed when sending bootup message");
+			}
+		}
+
+		char url[128];
+		// create url for HTTP request
+		sprintf(url, "%s/bootup/%#010lX", this->host.c_str(), commsID);
+
+		HttpRequest *req;
+		if (sockfd >= 0)
+		{
+			req = new HttpRequest(sockfd, HTTP_GET, url);
+		}
+		else
+		{
+			req = new HttpRequest(HTTP_GET, url);
+		}
+
+		// send the HTTP request to the server and get the response
+		auto res = req->send(nullptr, 0);
+
+		if (res && res->is_message_complete() && res->get_status_code() == 200)
+		{
+			log->info("Bootup message acknowledged");
+			return true;
+		}
+		else
+		{
+			// if the response is not good, do not reset
+			log->error("Error occurred on server when sending bootup message");
+			return false;
+		}
+}
+
+// this function queries the server to see if a software reset is needed
+bool CellularTask::isResetNeeded(uint32_t commsID)
+{
+	auto prevState = connected;
+
+	// connect to the server
+	if (!connected)
+	{
+		if (!connect())
+		{
+			log->error("Connecting failed when querying for missing files list");
+		}
+	}
+
+	char url[128];
+	// create url for HTTP request
+	sprintf(url, "%s/isResetNeeded/%#010lX", this->host.c_str(), commsID);
+
+	HttpRequest *req;
+	if (sockfd >= 0)
+	{
+		req = new HttpRequest(sockfd, HTTP_GET, url);
+	}
+	else
+	{
+		req = new HttpRequest(HTTP_GET, url);
+	}
+
+	// send the HTTP request to the server and get the response
+	auto res = req->send(nullptr, 0);
+
+	if (res && res->is_message_complete() && res->get_status_code() == 200)
+	{
+		if(res->get_body_as_string() == "0")
+		{
+			// if reset variable from server is 0, no reset is needed
+			return false;
+		}
+		else
+		{
+			// if reset variable from server is 1, reset is needed
+			return true;
+		}
+	}
+	else
+	{
+		// if the response is not good, do not reset
+		log->error("Error occurred on server when asking if reset is needed");
+		return false;
+	}
+}
+
+// this function queries the server for missing files from this radiometer unit
+bool CellularTask::getMissingFiles(uint32_t commsID) // func decl for runner
+{
+	auto prevState = connected;
+
+	// connect to the server
+	if (!connected)
+	{
+		if (!connect())
+		{
+			log->error("Connecting failed when querying for missing files list");
+			return false; // Didn't connect
+		}
+	}
+
+	bool retval = true;
+	FIL file;
+
+	// Open the file for writing using the FATFS library
+	FRESULT result = f_open(&file, "missing_file_paths.txt", FA_WRITE | FA_CREATE_ALWAYS);
+	if (result == FR_OK)
+	{
+		char url[128];
+		// create url for HTTP request
+		sprintf(url, "%s/getMissingFiles/%#010lX", this->host.c_str(), commsID);
+
+		HttpRequest *req;
+		if (sockfd >= 0)
+		{
+			req = new HttpRequest(sockfd, HTTP_GET, url);
+		}
+		else
+		{
+			req = new HttpRequest(HTTP_GET, url);
+		}
+
+		// send the HTTP request to the server and get the response
+		auto res = req->send(nullptr, 0);
+
+		// if we get a good response, process the incoming list of filepaths one by one
+		if (res && res->is_message_complete() && res->get_status_code() == 200)
+		{
+			std::string responseBody = res->get_body_as_string();
+			std::string filePath;
+			size_t startPos = 0;
+			size_t endPos = 0;
+
+			while ((endPos = responseBody.find('\n', startPos)) != std::string::npos)
+			{
+				filePath = responseBody.substr(startPos, endPos - startPos);
+
+				// Convert the filePath string to a C-style string
+				const char* filePathCStr = filePath.c_str();
+
+				// Write the file path to the file using the FATFS library
+				UINT bytesWritten;
+				result = f_write(&file, filePathCStr, strlen(filePathCStr), &bytesWritten);
+				if (result != FR_OK)
+				{
+					// Handle the file write error
+					log->error("Writing file paths to file failed");
+				}
+
+				// Write a newline character to separate file paths (optional)
+				const char* newline = "\n";
+				result = f_write(&file, newline, strlen(newline), &bytesWritten);
+				if (result != FR_OK)
+				{
+					// Handle the file write error
+					log->error("Writing file paths to file failed");
+				}
+
+				startPos = endPos + 1;
+			}
+
+		}
+		else
+		{
+			// Handle the case where the request failed or the response status code is not 200
+			retval = false;
+		}
+
+		delete req;
+
+		// Close the file after processing the file paths
+		f_close(&file);
+	}
+	else
+	{
+		// Handle the file open error
+		log->error("Could not open file for writing paths");
+		retval = false;
+	}
+
+	if (!prevState)
+	{
+		disconnect();
+	}
+
+	return retval;
+}
+
+// this function reads the missing_file_paths.txt, searches for each file,
+// and attempts to upload each one
+bool CellularTask::uploadMissingFiles(uint32_t commsID, FileSystemTask *filesystem)
+{
+
+	bool retval = true;
+	FIL file;
+    FRESULT result;
+
+    // Open the missing_file_paths.txt file
+    result = f_open(&file, "missing_file_paths.txt", FA_READ);
+    if (result != FR_OK)
+    {
+        // Handle file opening error
+    	log->error("Unable to open missing files list");
+        return false; // file doesn't exist
+    }
+
+    char filePath[256];
+
+    // Read file paths line by line and check if they exist on the SD card
+    while (f_gets(filePath, sizeof(filePath), &file) != nullptr)
+    {
+        // Remove trailing newline character
+        char* newline = strchr(filePath, '\n');
+        if (newline != nullptr){
+            *newline = '\0';
+        }
+
+        // Perform file existence check on the SD card
+        result = f_stat(filePath, nullptr);
+        if (result == FR_OK)
+        {
+        	log->info("%s found! Attempting to upload.", filePath);
+            // The file exists, upload it to the server
+        	auto reader = filesystem->createBufferedReader(filePath);
+			auto res = this->uploadFile(commsID, reader);
+			if(!res)
+			{
+				log->error("Error uploading %s", filePath);
+			}
+        }
+        else
+        {
+        	log->info("%s NOT FOUND! Attempting to tell server.", filePath);
+        	// send 404 back to server
+        	auto DNE_res = fileDNE(commsID, filePath);
+        	if(!DNE_res)
+        	{
+        		log->error("Failed to contact server for DNE notice");
+        	}
+
+        }
+        // go to next file
+    }
+
+    // Close the file
+    result = f_close(&file);
+    if (result != FR_OK)
+    {
+        // Handle file closing error
+    	log->error("Error occurred when closing missing files list");
+        return false;
+    }
+
+
+	return retval;
+}
+
+bool CellularTask::fileDNE(uint32_t commsID, char *filePath)
+{
+	auto prevState = connected;
+
+	if(!connected)
+	{
+		if (!connect())
+		{
+			log->error("Connecting failed in DNE");
+			return false; // Didn't connect
+		}
+	}
+
+	bool retval = true;
+	char url[128];
+	char body[270];
+	sprintf(url, "%s/DNE/%#010lX", this->host.c_str(), commsID);
+	sprintf(body, "404 %s DNE", filePath);
+	HttpRequest *req;
+	if(sockfd >= 0)
+	{
+		req = new HttpRequest(this->sockfd, HTTP_POST, url);
+	}
+	else
+	{
+		req = new HttpRequest(HTTP_POST, url);
+	}
+
+	req->set_header("Content-Type", "text/plain");
+
+	auto res = req->send(body, strlen(body));
+	if (res && res->is_message_complete() && res->get_status_code() == 200)
+	{
+		log->info("Server told that %s doesn't exist", filePath);
+	}
+	else
+	{
+		retval = false;
+	}
+	delete req;
+
+	if(!prevState)
+	{
+		disconnect();
+	}
+
+	return retval;
+}
+
 // below is updated upload file code. works well
 bool CellularTask::uploadFile(uint32_t commsID,
 		std::function<uint8_t* (uint32_t*)> bufferedReader)
@@ -198,7 +514,7 @@ bool CellularTask::uploadFile(uint32_t commsID,
 
 	bool retval = true;
 	char url[128];
-//	sprintf(url, "http://13.59.75.202:3000/radiometers/%#010lX", commsID); //hardcoded url
+//	sprintf(url, "http://13.59.75.202:3000/radiometers/%#010lX", commsID); //hardcoded old url
 	sprintf(url, "%s/radiometers/%#010lX", this->host.c_str(), commsID);
 
 
@@ -215,9 +531,19 @@ bool CellularTask::uploadFile(uint32_t commsID,
 	req->set_header("Content-Type", "application/octet-stream");
 
 	auto res = req->send(bufferedReader);
+
 	if (!res || !res->is_message_complete() || res->get_status_code() != 200)
 	{
 		retval = false;
+
+		log->error("Upload failed.");
+
+		// Logging the response body
+		if (res)
+		{
+			log->error("Upload failed. Response body:\n%s", res->get_body_as_string().c_str());
+		}
+
 		_HourlyData_SystemEvents event = HourlyData_SystemEvents_init_zero;
 		event.type = HourlyData_SystemEvents_EventType_OTHER;
 //		monitor->addEvent(event);
@@ -231,6 +557,8 @@ bool CellularTask::uploadFile(uint32_t commsID,
 
 	return retval;
 }
+
+
 
 
 // below is current upload file code that needs to be updated

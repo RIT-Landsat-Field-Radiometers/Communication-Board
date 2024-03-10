@@ -1,0 +1,13 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:314:13:ITM_Out	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:357:13:traceIF_uartTransmit	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:374:6:traceIF_trace_off	4	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:384:6:traceIF_trace_on	4	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:397:6:traceIF_itmPrint	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:430:6:traceIF_uartPrint	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:458:6:traceIF_itmPrintForce	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:479:6:traceIF_uartPrintForce	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:499:6:traceIF_hexPrint	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:557:6:traceIF_BufCharPrint	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:616:6:traceIF_BufHexPrint	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:645:6:traceIF_init	8	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Trace/Src/trace_interface.c:662:6:traceIF_start	4	static

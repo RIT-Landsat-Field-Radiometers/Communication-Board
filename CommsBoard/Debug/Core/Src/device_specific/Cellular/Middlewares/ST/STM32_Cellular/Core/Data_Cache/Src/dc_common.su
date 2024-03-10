@@ -1,0 +1,9 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Data_Cache/Src/dc_common.c:100:17:dc_com_register_serv	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Data_Cache/Src/dc_common.c:143:17:dc_com_core_register_gen_event_cb	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Data_Cache/Src/dc_common.c:178:17:dc_com_register_gen_event_cb	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Data_Cache/Src/dc_common.c:214:6:dc_com_register_gen_event_cb_common	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Data_Cache/Src/dc_common.c:233:17:dc_com_write	40	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Data_Cache/Src/dc_common.c:289:17:dc_com_read	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Data_Cache/Src/dc_common.c:314:17:dc_com_write_event	32	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Data_Cache/Src/dc_common.c:353:6:dc_com_init	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Data_Cache/Src/dc_common.c:371:6:dc_com_start	16	static,ignoring_inline_asm

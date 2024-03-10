@@ -331,6 +331,10 @@ void StartMainTask(void *argument)
 	 * END OF DATA START UP
 	 */
 
+	// send bootup message to server so that most recent reset time is tracked
+	auto commsID = cantask.getOwnAddress().identity.serialNumber;
+	cellular.sendBootup(commsID);
+
 	privLog.info("Initialization Complete, Now Running");
 	/* Infinite loop */
 	int lastLED = HAL_GetTick();
@@ -356,12 +360,24 @@ void StartMainTask(void *argument)
 			lastLED = HAL_GetTick();
 		}
 
-//	test code to make sure test button works
-//		if (tst_flag == 1)
-//		{
-//			privLog.info("TEST BUTTON CLICKED");
-//
-//		}
+//	test code to utilize the test button
+		if (tst_flag == 1)
+		{
+			tst_flag = 0;
+			privLog.info("TEST BUTTON CLICKED");
+
+			auto commsID = cantask.getOwnAddress().identity.serialNumber;
+			if(!cellular.isResetNeeded(commsID))
+			{
+				privLog.info("Reset not needed");
+			}
+			else
+			{
+				privLog.info("Reset needed");
+//				cantask.resetAllDevices();
+			}
+		}
+
 
 		int32_t flags = rtc.waitFlags(RTCTask::ALARMA | RTCTask::ALARMB, 10);
 
@@ -377,9 +393,6 @@ void StartMainTask(void *argument)
 				// Hourly alarm active
 				privLog.info("Saving samples to SDCard.... @ %s",
 						rtc.getStringTime());
-				// the print below is for laptop logging
-				privLog.debug("Saving samples to SDCard.... @ %s",
-										rtc.getStringTime());
 				auto data = datatask.generateProtoBuf(rtc.getUnixTime());
 				data.commsSerial =
 						cantask.getOwnAddress().identity.serialNumber;
@@ -390,6 +403,7 @@ void StartMainTask(void *argument)
 					data.bmeBoard.serialNumber = bmes[0].identity.serialNumber;
 					data.bmeBoard.fwVersion = bmes[0].identity.revisionNumber;
 				}
+
 				int sensorIDX = 0;
 				for (const auto &fp : sensors)
 				{
@@ -422,160 +436,315 @@ void StartMainTask(void *argument)
 				osDelay(5);
 				leds.fastFlash(color::BLUE);
 				// Daily alarm active
-				privLog.info("Uploading samples to server... @ %s",
-						rtc.getStringTime());
-				// the print below is for laptop logging
-				privLog.debug("Uploading samples to server... @ %s",
-										rtc.getStringTime());
-				cellular.connect(); // Doing many operations, so keep it on until finished
-				auto curTime = rtc.getDateTime();
-				char dirpath[256];
-				sprintf(dirpath, "/data/%d/%d/%d", curTime.date.Year + 2000,
-						curTime.date.Month, curTime.date.Date - 1); // Look at previous day
-//						curTime.date.Month, curTime.date.Date ); // Look at current day
-//				files = std::move(filesystem.listDirectory(dirpath));
-
-				osThreadAttr_t Task_attributes
-				{ 0 };
-				Task_attributes.stack_size = 4096 * 4;
-				Task_attributes.name = "UPLOAD_SUB";
-				Task_attributes.priority = (osPriority_t) osPriorityNormal;
-
-				if (runner != nullptr)
+				// connect to server and grab time
+				// check to see if it is actually midnight
+				// if not: break, else: continue this function
+				unixStartTime = cellular.getServerTime(); // get time from server
+				rtc.setUnixTime(unixStartTime); // update RTC
+				int unixSeconds = unixStartTime % (24*3600); // how many seconds have elapsed today
+				if (unixSeconds < 5*60) // if less than 5 minutes into the day, proceed with upload
 				{
-					osThreadTerminate(runner);
-					runner = nullptr;
-				}
+					privLog.info("Uploading samples to server... @ %s",
+											rtc.getStringTime());
+					cellular.connect(); // Doing many operations, so keep it on until finished
+					auto unixCurTime = rtc.getUnixTime();
+					char dirpath[256];
+					auto curTime = rtc.convertUnixToDateTime(unixCurTime - 86400);
+					privLog.debug("Uploading files from %d/%d/%d", curTime.date.Date,
+							curTime.date.Month, curTime.date.Year +2000);
+					sprintf(dirpath, "/data/%d/%d/%d", curTime.date.Year + 2000,
+							curTime.date.Month, curTime.date.Date); // Look at previous day
 
-				typedef struct
-				{
-					osThreadId_t *thread;
-					FileSystemTask *fs;
-					CellularTask * net;
-					RTCTask * rtc;
-					CANOpenTask * cantask;
-					std::string directory;
-					uint32_t commsSerial;
-				} runargs;
+					osThreadAttr_t Task_attributes
+					{ 0 };
+					Task_attributes.stack_size = 4096 * 4;
+					Task_attributes.name = "UPLOAD_SUB";
+					Task_attributes.priority = (osPriority_t) osPriorityNormal;
 
-				runargs arguments
-				{ 0 };
-				arguments.thread = &runner;
-				arguments.fs = &filesystem;
-				arguments.net = &cellular;
-				arguments.rtc = &rtc;
-				arguments.cantask = &cantask;
-				arguments.directory = dirpath;
-				arguments.commsSerial = cantask.getOwnAddress().identity.serialNumber;
+					if (runner != nullptr)
+					{
+						osThreadTerminate(runner);
+						runner = nullptr;
+					}
 
-				runner =
-						osThreadNew(
-								[](void *arg)
-								{
-									if(arg == nullptr)
+					typedef struct
+					{
+						osThreadId_t *thread;
+						FileSystemTask *fs;
+						CellularTask * net;
+						RTCTask * rtc;
+						CANOpenTask * cantask;
+						std::string directory;
+						uint32_t commsSerial;
+					} runargs;
+
+					runargs arguments
+					{ 0 };
+					arguments.thread = &runner;
+					arguments.fs = &filesystem;
+					arguments.net = &cellular;
+					arguments.rtc = &rtc;
+					arguments.cantask = &cantask;
+					arguments.directory = dirpath;
+					arguments.commsSerial = cantask.getOwnAddress().identity.serialNumber;
+
+					runner =
+							osThreadNew(
+									[](void *arg)
 									{
-										osThreadExit(); // Can't do anything without input.......
-									}
-									auto fsys = ((runargs *) arg)->fs;
-									auto dirname = ((runargs *) arg)->directory;
-									auto net = ((runargs *) arg)->net;
-									auto can = ((runargs *) arg)->cantask;
-
-									{
-										Logger ilog("Upload_Sub");
-										auto files = fsys->listDirectory(dirname);
-
-										net->connect(); // Doing many operations, so keep it on until finished
-										uint8_t failCount = 0;
-										for(uint8_t idx = 0; idx < files.size();)
-	//									for (const auto &fp : files)
+										if(arg == nullptr)
 										{
-											auto fp = files[idx];
-											ilog.info("Uploading file: %s", fp.c_str());
-											// the print below is for laptop logging
-											ilog.debug("Uploading file: %s", fp.c_str());
-											auto reader = fsys->createBufferedReader(fp);
-											auto res = net->uploadFile(((runargs *) arg)->commsSerial, reader);
-											if(res)
+											osThreadExit(); // Can't do anything without input.......
+										}
+										auto fsys = ((runargs *) arg)->fs;
+										auto dirname = ((runargs *) arg)->directory;
+										auto net = ((runargs *) arg)->net;
+										auto can = ((runargs *) arg)->cantask;
+
+										{
+											Logger ilog("Upload_Sub");
+											auto files = fsys->listDirectory(dirname);
+
+											net->connect(); // Doing many operations, so keep it on until finished
+	//										uint8_t failCount = 0;
+											for(uint8_t idx = 0; idx < files.size();)
+		//									for (const auto &fp : files)
 											{
-												ilog.info("OK");
-												idx++;
-												failCount = 0;
+												auto fp = files[idx];
+												ilog.info("Uploading file: %s", fp.c_str());
+												auto reader = fsys->createBufferedReader(fp);
+												auto res = net->uploadFile(((runargs *) arg)->commsSerial, reader);
+												if(res)
+												{
+													ilog.info("OK");
+													idx++;
+	//												failCount = 0;
+												}
+												else
+												{
+													ilog.debug("NOT OK, %s", ((runargs *) arg)->rtc->getStringTime());
+
+
+													can->resetAllDevices(); // if not okay, restart all of the boards to avoid cellular lockup
+
+	//												if(failCount >= 3)
+	//												{
+	//													ilog.error("Skipping file: %s", fp.c_str());
+	//													// the print below is for laptop logging
+	//													ilog.debug("Skipping file: %s, %s", fp.c_str(), ((runargs *) arg)->rtc->getStringTime());
+	//													idx++;
+	//													failCount = 0;
+	//												}
+	//												else
+	//												{
+	//													failCount++;
+	//												}
+	//
+	//												net->disconnect();
+	//												osDelay(5 * 60 * 1000); // wait 5 min
+	//												net->connect();
+												}
+											}
+											auto unixStartTime = net->getServerTime(); // get time from server to correct drift
+											if (unixStartTime > 0)
+											{
+												((runargs *) arg)->rtc->setUnixTime(unixStartTime);
 											}
 											else
 											{
-												ilog.error("NOT OK");
-												// the print below is for laptop logging
-												ilog.debug("NOT OK, %s", ((runargs *) arg)->rtc->getStringTime());
-
-
-												can->resetAllDevices(); // if not okay, restart all of the boards to avoid cellular lockup
-
-//												if(failCount >= 3)
-//												{
-//													ilog.error("Skipping file: %s", fp.c_str());
-//													// the print below is for laptop logging
-//													ilog.debug("Skipping file: %s, %s", fp.c_str(), ((runargs *) arg)->rtc->getStringTime());
-//													idx++;
-//													failCount = 0;
-//												}
-//												else
-//												{
-//													failCount++;
-//												}
-//
-//												net->disconnect();
-//												osDelay(5 * 60 * 1000); // wait 5 min
-//												net->connect();
+												ilog.error("Failed to get time from server");
 											}
+											ilog.debug("Done, %s", ((runargs *) arg)->rtc->getStringTime());
+
+											// query server for list of missing files
+											ilog.info("Querying server for list of missing files...");
+											if(!net->getMissingFiles(((runargs *) arg)->commsSerial))
+											{
+												ilog.info("Error occurred when fetching missing files list");
+											}
+											else
+											{
+												ilog.info("Returned from getMissingFiles function successfully");
+												ilog.info("Trying to upload missing files...");
+												// try to upload the missing files
+												auto tryMissing = net->uploadMissingFiles(((runargs *) arg)->commsSerial, fsys);
+												if(!tryMissing)
+												{
+													ilog.info("Failed during uploadMissingFiles");
+												}
+												else
+												{
+													ilog.info("Returned from uploadMissingFiles function successfully");
+												}
+											}
+
+											// query server for reset request
+											ilog.info("Querying server for software reset");
+											if(!net->isResetNeeded(((runargs *) arg)->commsSerial))
+											{
+												ilog.info("Reset not needed");
+											}
+											else
+											{
+												ilog.info("Reset needed");
+												osDelay(500); // give the system time to print the above message
+												can->resetAllDevices();
+											}
+
+											net->disconnect(); // turn it off to save power
 										}
-										auto unixStartTime = net->getServerTime(); // get time from server to correct drift
-										if (unixStartTime > 0)
-										{
-											((runargs *) arg)->rtc->setUnixTime(unixStartTime);
-										}
-										else
-										{
-											ilog.error("Failed to get time from server");
-											// the print below is for laptop logging
-											ilog.debug("Failed to get time from server");
-										}
-										ilog.info("Done");
-										// the print below is for laptop logging
-										ilog.debug("Done, %s", ((runargs *) arg)->rtc->getStringTime());
+										*((runargs *) arg)->thread = nullptr;
+										osThreadExit();
+									}, &arguments, &Task_attributes);
 
-										net->disconnect(); // turn it off to save power
-									}
-									*((runargs *) arg)->thread = nullptr;
-//									*runner = nullptr;
-									osThreadExit();
-								}, &arguments, &Task_attributes);
+				}
+				else // otherwise, it is too early to begin the upload
+				{
+					privLog.info("Alarm triggered too early, Unix time reset to: %s", rtc.getStringTime());
+				}
 
+				// previous upload code location
 
-//				for (const auto &fp : files)
+//				privLog.info("Uploading samples to server... @ %s",
+//						rtc.getStringTime());
+//				cellular.connect(); // Doing many operations, so keep it on until finished
+//				auto curTime = rtc.getDateTime();
+//				char dirpath[256];
+//				sprintf(dirpath, "/data/%d/%d/%d", curTime.date.Year + 2000,
+//						curTime.date.Month, curTime.date.Date - 1); // Look at previous day
+////						curTime.date.Month, curTime.date.Date ); // Look at current day
+////				files = std::move(filesystem.listDirectory(dirpath));
+//
+//				osThreadAttr_t Task_attributes
+//				{ 0 };
+//				Task_attributes.stack_size = 4096 * 4;
+//				Task_attributes.name = "UPLOAD_SUB";
+//				Task_attributes.priority = (osPriority_t) osPriorityNormal;
+//
+//				if (runner != nullptr)
 //				{
-//					privLog.info("Uploading file: %s", fp.c_str());
-//					auto reader = filesystem.createBufferedReader(fp);
-//					auto res = cellular.uploadFile(
-//							cantask.getOwnAddress().identity.serialNumber,
-//							reader);
-//					if (res)
-//						privLog.info("OK");
-//					else
-//						privLog.error("NOT OK");
-//				}
-
-//				unixStartTime = cellular.getServerTime(); // get time from server to correct drift
-//				if (unixStartTime > 0)
-//				{
-//					rtc.setUnixTime(unixStartTime);
-//				}
-//				else
-//				{
-//					privLog.error("Failed to get time from server");
+//					osThreadTerminate(runner);
+//					runner = nullptr;
 //				}
 //
-//				cellular.disconnect(); // turn it off to save power
+//				typedef struct
+//				{
+//					osThreadId_t *thread;
+//					FileSystemTask *fs;
+//					CellularTask * net;
+//					RTCTask * rtc;
+//					CANOpenTask * cantask;
+//					std::string directory;
+//					uint32_t commsSerial;
+//				} runargs;
+//
+//				runargs arguments
+//				{ 0 };
+//				arguments.thread = &runner;
+//				arguments.fs = &filesystem;
+//				arguments.net = &cellular;
+//				arguments.rtc = &rtc;
+//				arguments.cantask = &cantask;
+//				arguments.directory = dirpath;
+//				arguments.commsSerial = cantask.getOwnAddress().identity.serialNumber;
+//
+//				runner =
+//						osThreadNew(
+//								[](void *arg)
+//								{
+//									if(arg == nullptr)
+//									{
+//										osThreadExit(); // Can't do anything without input.......
+//									}
+//									auto fsys = ((runargs *) arg)->fs;
+//									auto dirname = ((runargs *) arg)->directory;
+//									auto net = ((runargs *) arg)->net;
+//									auto can = ((runargs *) arg)->cantask;
+//
+//									{
+//										Logger ilog("Upload_Sub");
+//										auto files = fsys->listDirectory(dirname);
+//
+//										net->connect(); // Doing many operations, so keep it on until finished
+////										uint8_t failCount = 0;
+//										for(uint8_t idx = 0; idx < files.size();)
+//	//									for (const auto &fp : files)
+//										{
+//											auto fp = files[idx];
+//											ilog.info("Uploading file: %s", fp.c_str());
+//											auto reader = fsys->createBufferedReader(fp);
+//											auto res = net->uploadFile(((runargs *) arg)->commsSerial, reader);
+//											if(res)
+//											{
+//												ilog.info("OK");
+//												idx++;
+////												failCount = 0;
+//											}
+//											else
+//											{
+//												ilog.debug("NOT OK, %s", ((runargs *) arg)->rtc->getStringTime());
+//
+//
+//												can->resetAllDevices(); // if not okay, restart all of the boards to avoid cellular lockup
+//
+////												if(failCount >= 3)
+////												{
+////													ilog.error("Skipping file: %s", fp.c_str());
+////													// the print below is for laptop logging
+////													ilog.debug("Skipping file: %s, %s", fp.c_str(), ((runargs *) arg)->rtc->getStringTime());
+////													idx++;
+////													failCount = 0;
+////												}
+////												else
+////												{
+////													failCount++;
+////												}
+////
+////												net->disconnect();
+////												osDelay(5 * 60 * 1000); // wait 5 min
+////												net->connect();
+//											}
+//										}
+//										auto unixStartTime = net->getServerTime(); // get time from server to correct drift
+//										if (unixStartTime > 0)
+//										{
+//											((runargs *) arg)->rtc->setUnixTime(unixStartTime);
+//										}
+//										else
+//										{
+//											ilog.error("Failed to get time from server");
+//										}
+//										ilog.debug("Done, %s", ((runargs *) arg)->rtc->getStringTime());
+//
+//										// query server for list of missing files
+//										ilog.info("Querying server for list of missing files...");
+//										if(!net->getMissingFiles(((runargs *) arg)->commsSerial))
+//										{
+//											ilog.info("Error occurred when fetching missing files list");
+//										}
+//										else
+//										{
+//											ilog.info("Returned from getMissingFiles function successfully");
+//											ilog.info("Trying to upload missing files...");
+//											// try to upload the missing files
+//											auto tryMissing = net->uploadMissingFiles(((runargs *) arg)->commsSerial, fsys);
+//											if(!tryMissing)
+//											{
+//												ilog.info("Failed during uploadMissingFiles");
+//											}
+//											else
+//											{
+//												ilog.info("Returned from uploadMissingFiles function successfully");
+//											}
+//										}
+//
+//										net->disconnect(); // turn it off to save power
+//									}
+//									*((runargs *) arg)->thread = nullptr;
+//									osThreadExit();
+//								}, &arguments, &Task_attributes);
+
+
 			}
 		}
 

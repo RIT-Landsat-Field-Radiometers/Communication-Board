@@ -1,0 +1,8 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Cellular_Service/Src/cellular_service_int.c:74:6:csint_modem_reset_update_socket_state	16	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Cellular_Service/Src/cellular_service_int.c:118:6:csint_socket_init	16	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Cellular_Service/Src/cellular_service_int.c:151:17:csint_socket_allocateHandle	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Cellular_Service/Src/cellular_service_int.c:175:6:csint_socket_deallocateHandle	16	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Cellular_Service/Src/cellular_service_int.c:181:13:csint_socket_create	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Cellular_Service/Src/cellular_service_int.c:216:13:csint_socket_bind	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Cellular_Service/Src/cellular_service_int.c:246:13:csint_socket_configure	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/Cellular_Service/Src/cellular_service_int.c:419:13:csint_socket_configure_remote	32	static,ignoring_inline_asm

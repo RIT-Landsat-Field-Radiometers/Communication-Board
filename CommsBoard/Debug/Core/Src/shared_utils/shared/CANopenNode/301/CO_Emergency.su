@@ -1,0 +1,10 @@
+D:/ProgramsOnHDD/DIRS/TestDirectory/communication-board/CommsBoard-backupUpdate/Core/Src/shared_utils/shared/CANopenNode/301/CO_driver.h:768:23:CO_setUint32	16	static
+D:/ProgramsOnHDD/DIRS/TestDirectory/communication-board/CommsBoard-backupUpdate/Core/Src/shared_utils/shared/CANopenNode/301/CO_ODinterface.h:445:24:OD_getIndex	16	static
+D:/ProgramsOnHDD/DIRS/TestDirectory/communication-board/CommsBoard-backupUpdate/Core/Src/shared_utils/shared/CANopenNode/301/CO_ODinterface.h:594:21:OD_extension_init	16	static
+D:/ProgramsOnHDD/DIRS/TestDirectory/communication-board/CommsBoard-backupUpdate/Core/Src/shared_utils/shared/CANopenNode/301/CO_ODinterface.h:670:21:OD_get_u32	32	static
+../Core/Src/shared_utils/shared/CANopenNode/301/CO_Emergency.c:129:14:OD_read_1014_default	32	static
+../Core/Src/shared_utils/shared/CANopenNode/301/CO_Emergency.c:318:13:CO_EM_receive	56	static
+../Core/Src/shared_utils/shared/CANopenNode/301/CO_Emergency.c:344:18:CO_EM_init	48	static
+../Core/Src/shared_utils/shared/CANopenNode/301/CO_Emergency.c:527:6:CO_EM_initCallbackRx	16	static
+../Core/Src/shared_utils/shared/CANopenNode/301/CO_Emergency.c:554:6:CO_EM_process	56	static
+../Core/Src/shared_utils/shared/CANopenNode/301/CO_Emergency.c:713:6:CO_error	48	static

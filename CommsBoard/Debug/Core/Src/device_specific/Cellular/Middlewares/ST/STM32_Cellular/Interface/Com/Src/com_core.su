@@ -1,0 +1,2 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_core.c:153:6:com_init	16	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_core.c:188:6:com_start	16	static

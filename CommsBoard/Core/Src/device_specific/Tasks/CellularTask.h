@@ -9,6 +9,7 @@
 #define SRC_DEVICE_SPECIFIC_TASKS_CELLULARTASK_H_
 #include "TaskInterface.h"
 #include <functional>
+#include "Tasks/FileSystemTask.h"
 
 class CellularTask: public TaskInterface
 {
@@ -33,6 +34,11 @@ public:
 	uint32_t getServerTime();
 
 	bool uploadFile(uint32_t commsID, std::function<uint8_t*(uint32_t *)> bufferedReader);
+	bool getMissingFiles(uint32_t commsID);
+	bool uploadMissingFiles(uint32_t commsID, FileSystemTask *filesystem);
+	bool fileDNE(uint32_t commsID, char *filePath);
+	bool isResetNeeded(uint32_t commsID);
+	bool sendBootup(uint32_t commsID);
 
 	void printNetworkInfo();
 };

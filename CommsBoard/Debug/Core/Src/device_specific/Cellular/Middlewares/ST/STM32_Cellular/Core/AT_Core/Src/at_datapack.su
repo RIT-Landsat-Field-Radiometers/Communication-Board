@@ -1,0 +1,7 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_datapack.c:82:19:DATAPACK_writePtr	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_datapack.c:125:19:DATAPACK_writeStruct	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_datapack.c:179:19:DATAPACK_readPtr	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_datapack.c:220:19:DATAPACK_readStruct	32	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_datapack.c:246:10:DATAPACK_readMsgType	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_datapack.c:254:10:DATAPACK_readSize	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/at_datapack.c:263:26:check_structure_to_read	32	static,ignoring_inline_asm

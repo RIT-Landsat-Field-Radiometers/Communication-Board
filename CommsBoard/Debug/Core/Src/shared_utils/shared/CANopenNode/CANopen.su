@@ -1,0 +1,12 @@
+D:/ProgramsOnHDD/DIRS/TestDirectory/communication-board/CommsBoard-backupUpdate/Core/Src/shared_utils/shared/CANopenNode/301/CO_Emergency.h:645:22:CO_isError	24	static
+D:/ProgramsOnHDD/DIRS/TestDirectory/communication-board/CommsBoard-backupUpdate/Core/Src/shared_utils/shared/CANopenNode/301/CO_Emergency.h:660:23:CO_getErrorRegister	16	static
+../Core/Src/shared_utils/shared/CANopenNode/301/CO_NMT_Heartbeat.h:318:38:CO_NMT_getInternalState	16	static
+../Core/Src/shared_utils/shared/CANopenNode/CANopen.c:804:7:CO_new	24	static
+../Core/Src/shared_utils/shared/CANopenNode/CANopen.c:867:6:CO_delete	16	static
+../Core/Src/shared_utils/shared/CANopenNode/CANopen.c:877:8:CO_isLSSslaveEnabled	24	static
+../Core/Src/shared_utils/shared/CANopenNode/CANopen.c:887:18:CO_CANinit	48	static
+../Core/Src/shared_utils/shared/CANopenNode/CANopen.c:939:18:CO_CANopenInit	96	static
+../Core/Src/shared_utils/shared/CANopenNode/CANopen.c:1249:18:CO_CANopenInitPDO	80	static
+../Core/Src/shared_utils/shared/CANopenNode/CANopen.c:1336:20:CO_process	112	static
+../Core/Src/shared_utils/shared/CANopenNode/CANopen.c:1452:8:CO_process_SYNC	40	static
+../Core/Src/shared_utils/shared/CANopenNode/CANopen.c:1487:6:CO_process_RPDO	32	static

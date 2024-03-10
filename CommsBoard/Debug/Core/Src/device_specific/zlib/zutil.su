@@ -1,0 +1,6 @@
+../Core/Src/device_specific/zlib/zutil.c:27:22:zlibVersion	4	static
+../Core/Src/device_specific/zlib/zutil.c:32:15:zlibCompileFlags	16	static
+../Core/Src/device_specific/zlib/zutil.c:133:22:zError	16	static
+../Core/Src/device_specific/zlib/zutil.c:149:20:zmemcpy	24	static
+../Core/Src/device_specific/zlib/zutil.c:160:19:zmemcmp	32	static
+../Core/Src/device_specific/zlib/zutil.c:173:20:zmemzero	16	static

@@ -1,0 +1,8 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/sysctrl.c:61:18:SysCtrl_getDeviceDescriptor	24	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/sysctrl.c:92:18:SysCtrl_open_channel	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/sysctrl.c:114:18:SysCtrl_close_channel	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/sysctrl.c:136:18:SysCtrl_power_on	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/sysctrl.c:158:18:SysCtrl_power_off	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/sysctrl.c:180:18:SysCtrl_reset_device	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/sysctrl.c:203:18:SysCtrl_sim_select	24	static,ignoring_inline_asm
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/AT_Core/Src/sysctrl.c:225:6:SysCtrl_delay	16	static

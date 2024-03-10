@@ -1,0 +1,2 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/PPPosif/Src/ppposif.c:312:10:sys_now	8	static
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Core/PPPosif/Src/ppposif.c:318:10:sys_jiffies	4	static

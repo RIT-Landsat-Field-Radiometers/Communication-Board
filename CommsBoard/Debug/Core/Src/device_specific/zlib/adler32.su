@@ -1,0 +1,5 @@
+../Core/Src/device_specific/zlib/adler32.c:63:15:adler32_z	32	static
+../Core/Src/device_specific/zlib/adler32.c:134:15:adler32	24	static
+../Core/Src/device_specific/zlib/adler32.c:143:13:adler32_combine_	40	static
+../Core/Src/device_specific/zlib/adler32.c:172:15:adler32_combine	24	static
+../Core/Src/device_specific/zlib/adler32.c:180:15:adler32_combine64	24	static

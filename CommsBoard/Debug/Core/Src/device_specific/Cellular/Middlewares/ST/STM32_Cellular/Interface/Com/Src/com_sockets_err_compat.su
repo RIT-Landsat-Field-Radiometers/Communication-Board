@@ -1,0 +1,1 @@
+../Core/Src/device_specific/Cellular/Middlewares/ST/STM32_Cellular/Interface/Com/Src/com_sockets_err_compat.c:96:9:com_sockets_err_to_errno	16	static
